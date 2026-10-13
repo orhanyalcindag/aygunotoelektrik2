@@ -358,31 +358,37 @@ h1, h2, h3, h4, h5, h6 {
   top: 0;
   left: 0;
   width: 100%;
-  background-color: rgba(9, 9, 11, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border-dark);
+  background-color: rgba(9, 9, 12, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   z-index: 100;
   transition: all var(--transition-fast);
 }
 
 .main-header.scrolled {
-  background-color: rgba(5, 5, 6, 0.96);
-  border-bottom-color: rgba(229, 9, 20, 0.3);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+  background-color: rgba(6, 6, 8, 0.96);
+  border-bottom-color: rgba(229, 9, 20, 0.35);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8);
 }
 
 .header-container {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 78px;
+  height: 82px;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 24px;
+  gap: 16px;
 }
 
 .brand-logo {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
 }
 
 .logo-emblem {
@@ -427,82 +433,98 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
 }
 
+/* Floating Glass Island Navbar */
 .desktop-nav {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 4px;
+  background: rgba(18, 18, 24, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 6px 8px;
+  border-radius: 40px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .nav-link {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  position: relative;
-  padding: 6px 0;
-}
-
-.nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0%;
-  height: 2px;
-  background-color: var(--red-bright);
-  transition: width var(--transition-fast);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #a1a1aa;
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border-radius: 24px;
+  line-height: 1.2;
+  text-align: center;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
 }
 
 .nav-link:hover {
   color: #ffffff;
-}
-
-.nav-link:hover::after,
-.nav-link.active::after {
-  width: 100%;
+  background: rgba(255, 255, 255, 0.07);
 }
 
 .nav-link.active {
   color: #ffffff;
+  background: linear-gradient(135deg, rgba(229, 9, 20, 0.35) 0%, rgba(153, 0, 8, 0.22) 100%);
+  border: 1px solid rgba(255, 30, 39, 0.5);
+  box-shadow: 0 0 15px rgba(229, 9, 20, 0.35);
 }
 
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
 .btn-call-header {
-  background: rgba(229, 9, 20, 0.1);
-  border: 1px solid var(--border-red);
+  background: rgba(229, 9, 20, 0.12);
+  border: 1px solid rgba(229, 9, 20, 0.4);
   color: #ffffff;
   padding: 8px 16px;
-  border-radius: var(--radius-sm);
+  border-radius: 30px;
   display: flex;
   align-items: center;
   gap: 10px;
+  transition: all var(--transition-fast);
+  box-shadow: 0 0 12px rgba(229, 9, 20, 0.15);
 }
 
 .btn-call-header:hover {
   background: var(--red-primary);
   border-color: var(--red-bright);
-  box-shadow: 0 0 15px var(--red-glow);
+  box-shadow: 0 0 20px var(--red-glow);
+  transform: translateY(-1px);
 }
 
 .btn-call-header .btn-icon {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
+  color: var(--red-bright);
+}
+
+.btn-call-header:hover .btn-icon {
+  color: #fff;
 }
 
 .btn-call-header .btn-text {
   display: flex;
   flex-direction: column;
-  line-height: 1.1;
+  line-height: 1.15;
   text-align: left;
 }
 
 .btn-call-header .btn-text small {
-  font-size: 0.7rem;
-  color: var(--red-bright);
-  font-weight: 600;
+  font-size: 0.68rem;
+  color: #ff6b72;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .btn-call-header:hover .btn-text small {
@@ -510,25 +532,29 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-call-header .btn-text strong {
-  font-size: 0.85rem;
-  letter-spacing: 0.2px;
+  font-size: 0.88rem;
+  letter-spacing: 0.3px;
+  font-weight: 700;
 }
 
 .btn-whatsapp-header {
   background: #25d366;
   color: #fff;
-  padding: 9px 16px;
-  border-radius: var(--radius-sm);
-  font-weight: 600;
+  padding: 9px 18px;
+  border-radius: 30px;
+  font-weight: 700;
   font-size: 0.85rem;
   display: flex;
   align-items: center;
   gap: 6px;
+  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.25);
+  transition: all var(--transition-fast);
 }
 
 .btn-whatsapp-header:hover {
   background: #20bd5a;
-  box-shadow: 0 0 15px rgba(37, 211, 102, 0.4);
+  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.45);
+  transform: translateY(-1px);
 }
 
 .mobile-toggle {
@@ -2171,6 +2197,39 @@ h1, h2, h3, h4, h5, h6 {
 /* ==========================================================================
    RESPONSIVE MEDIA QUERIES
    ========================================================================== */
+@media (max-width: 1200px) {
+  .desktop-nav {
+    gap: 2px;
+    padding: 4px 6px;
+  }
+  .nav-link {
+    padding: 6px 10px;
+    font-size: 0.82rem;
+  }
+  .btn-call-header {
+    padding: 7px 12px;
+  }
+  .btn-call-header .btn-text strong {
+    font-size: 0.8rem;
+  }
+  .btn-whatsapp-header {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .desktop-nav {
+    display: none;
+  }
+  .mobile-toggle {
+    display: flex;
+  }
+  .btn-call-header {
+    display: none;
+  }
+}
+
 @media (max-width: 1100px) {
   .hero-container {
     grid-template-columns: 1fr;
