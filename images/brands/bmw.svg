@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- Outer circle -->
+  <circle cx="50" cy="50" r="48" fill="#111116" stroke="#9ca3af" stroke-width="2.5"/>
+  <circle cx="50" cy="50" r="33" fill="#ffffff"/>
+  <!-- Quarters -->
+  <path d="M50 17 A33 33 0 0 1 83 50 L50 50 Z" fill="#0066b1"/>
+  <path d="M50 50 L17 50 A33 33 0 0 1 50 17 Z" fill="#ffffff"/>
+  <path d="M50 50 L50 83 A33 33 0 0 1 17 50 Z" fill="#0066b1"/>
+  <path d="M50 50 L83 50 A33 33 0 0 1 50 83 Z" fill="#ffffff"/>
+  <circle cx="50" cy="50" r="33" fill="none" stroke="#6b7280" stroke-width="1"/>
+  <!-- BMW text -->
+  <text x="32" y="14" font-family="'Helvetica', Arial, sans-serif" font-weight="900" font-size="9" fill="#ffffff">B</text>
+  <text x="46" y="11" font-family="'Helvetica', Arial, sans-serif" font-weight="900" font-size="9" fill="#ffffff">M</text>
+  <text x="63" y="14" font-family="'Helvetica', Arial, sans-serif" font-weight="900" font-size="9" fill="#ffffff">W</text>
+</svg>

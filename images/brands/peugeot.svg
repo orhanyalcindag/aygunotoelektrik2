@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 100" width="90" height="100">
+  <!-- Shield outline -->
+  <path d="M45 5 L82 18 L76 72 L45 95 L14 72 L8 18 Z" fill="#0d0d12" stroke="#e5e7eb" stroke-width="4"/>
+  <path d="M45 12 L76 22 L71 68 L45 88 L19 68 L14 22 Z" fill="#14141c" stroke="#9ca3af" stroke-width="1.5"/>
+  <!-- Stylized lion head profile -->
+  <path d="M45 28 C48 30 54 30 58 35 C61 38 63 43 60 48 C58 51 55 52 52 52 C50 52 48 50 48 48 C48 44 54 44 52 40 C50 38 46 38 44 41 C42 43 43 47 45 49 C48 52 53 53 57 56 C61 60 62 66 58 71 C55 74 50 76 46 76 C40 76 34 72 32 66 C30 62 31 57 34 54 C36 51 40 50 43 53 C40 56 40 60 42 63 C44 66 48 67 51 65 C54 63 54 58 51 56 C47 54 41 52 38 48 C34 43 35 36 39 31 C41 29 43 28 45 28 Z" fill="#e5e7eb"/>
+  <text x="45" y="24" font-family="'Helvetica', Arial, sans-serif" font-weight="900" font-size="7" fill="#ffffff" text-anchor="middle" letter-spacing="1">PEUGEOT</text>
+</svg>

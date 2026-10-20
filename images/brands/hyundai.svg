@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80" width="120" height="80">
+  <ellipse cx="60" cy="40" rx="55" ry="34" fill="none" stroke="#e5e7eb" stroke-width="5"/>
+  <!-- Slanted H -->
+  <path d="M40 22 C37 32 35 48 34 58 C40 58 46 54 47 48 C48 44 56 42 66 42 C67 48 66 54 72 58 C78 58 82 48 84 22 C78 22 74 28 72 34 C71 36 65 37 54 37 C53 32 54 26 48 22 Z" fill="#e5e7eb"/>
+</svg>

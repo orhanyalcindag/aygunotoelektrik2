@@ -1539,38 +1539,48 @@ h1, h2, h3, h4, h5, h6 {
 
 .brands-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 14px;
 }
 
 .brand-card {
   background: #0f0f13;
   border: 1px solid var(--border-dark);
   border-radius: var(--radius-md);
-  padding: 16px 12px;
+  padding: 18px 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   transition: all var(--transition-fast);
+  text-align: center;
 }
 
 .brand-card:hover {
   border-color: var(--red-bright);
   background: #14141c;
   transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 10px 25px rgba(229, 9, 20, 0.25);
 }
 
-.brand-logo-icon {
-  font-size: 1.5rem;
+.brand-logo-img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  transition: all var(--transition-fast);
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5));
+}
+
+.brand-card:hover .brand-logo-img {
+  transform: scale(1.1);
 }
 
 .brand-name {
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   font-weight: 600;
-  color: #d4d4d8;
+  color: #e4e4e7;
+  letter-spacing: 0.3px;
 }
 
 /* ==========================================================================
@@ -3312,7 +3322,8 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .brands-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
   }
 
   .footer-top {
