@@ -446,6 +446,286 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* ==========================================================================
+     13. GLOBAL TOAST NOTIFICATION SYSTEM
+     ========================================================================== */
+  const appToast = document.getElementById('appToast');
+  const toastText = document.getElementById('toastText');
+  let toastTimer = null;
+
+  function showToast(message, duration = 3200) {
+    if (!appToast || !toastText) return;
+    toastText.textContent = message;
+    appToast.classList.add('show');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      appToast.classList.remove('show');
+    }, duration);
+  }
+
+  /* ==========================================================================
+     14. "FATİH USTA'YI REHBERE KAYDET" (vCard / .vcf İNDİRME)
+     ========================================================================== */
+  function downloadVCard() {
+    const vcardLines = [
+      'BEGIN:VCARD',
+      'VERSION:3.0',
+      'N:Usta;Fatih;;;',
+      'FN:Fatih Usta - Aygün Oto Elektronik 2',
+      'ORG:Aygün Oto Elektronik 2',
+      'TITLE:Oto Elektronik & Beyin Tamiri Uzmanı',
+      'TEL;TYPE=CELL,VOICE;VALUE=uri:tel:+905300755282:+905300755282',
+      'EMAIL;TYPE=WORK:info@aygunotoelektronik2.com',
+      'ADR;TYPE=WORK,POSTAL,PARCEL:;;Sanayi 20. Sk. No: 4/1 Kocasinan Mah. Lüleburgaz Köprübaşı Eski Sanayi Sitesi;Lüleburgaz;Kırklareli;39750;Türkiye',
+      'URL:https://aygunotoelektronik2.vercel.app/',
+      'NOTE:Aygün Oto Elektronik 2 - Lüleburgaz Araç Motor Beyin (ECU) Tamiri, ABS, Airbag, Gösterge, İmmobilizer & Arıza Tespiti. Fatih Usta: 0530 075 52 82',
+      'END:VCARD'
+    ].join('\r\n');
+
+    const blob = new Blob([vcardLines], { type: 'text/vcard;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const tempLink = document.createElement('a');
+    tempLink.href = url;
+    tempLink.setAttribute('download', 'Fatih_Usta_Aygun_Oto_Elektronik_2.vcf');
+    document.body.appendChild(tempLink);
+    tempLink.click();
+    document.body.removeChild(tempLink);
+    URL.revokeObjectURL(url);
+
+    showToast('Fatih Usta rehber kartı (.vcf) indirildi! Telefonunuza kaydedebilirsiniz.');
+  }
+
+  const vcardButtons = document.querySelectorAll('.vcard-download-btn');
+  vcardButtons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      downloadVCard();
+    });
+  });
+
+  /* ==========================================================================
+     15. AKILLI NAVİGASYON SEÇİCİ MODAL (#navModal)
+     ========================================================================== */
+  const navModal = document.getElementById('navModal');
+  const navModalClose = document.getElementById('navModalClose');
+  const navModalBackdrop = document.getElementById('navModalBackdrop');
+  const navModalCopyBtn = document.getElementById('navModalCopyBtn');
+  const navModalCopyText = document.getElementById('navModalCopyText');
+  const openNavButtons = document.querySelectorAll('.open-nav-modal-btn');
+  const yandexNavAppBtn = document.getElementById('yandexNavAppBtn');
+
+  function openNavModal(e) {
+    if (e) e.preventDefault();
+    if (!navModal) return;
+    navModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeNavModal() {
+    if (!navModal) return;
+    navModal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  openNavButtons.forEach(btn => {
+    btn.addEventListener('click', openNavModal);
+  });
+
+  if (navModalClose) navModalClose.addEventListener('click', closeNavModal);
+  if (navModalBackdrop) navModalBackdrop.addEventListener('click', closeNavModal);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && navModal && navModal.classList.contains('active')) {
+      closeNavModal();
+    }
+  });
+
+  // Yandex App fallback to web
+  if (yandexNavAppBtn) {
+    yandexNavAppBtn.addEventListener('click', () => {
+      const fallbackUrl = yandexNavAppBtn.getAttribute('data-fallback');
+      const start = Date.now();
+      setTimeout(() => {
+        if (Date.now() - start < 2000) {
+          window.open(fallbackUrl, '_blank');
+        }
+      }, 1200);
+    });
+  }
+
+  // Address copy inside Nav modal
+  if (navModalCopyBtn && navModalCopyText) {
+    navModalCopyBtn.addEventListener('click', () => {
+      const address = "Kocasinan Mahallesi, Lüleburgaz Köprübaşı Eski Sanayi Sitesi, Sanayi 20. Sokak No: 4/1, 39750 Lüleburgaz / Kırklareli";
+      navigator.clipboard.writeText(address).then(() => {
+        navModalCopyText.textContent = 'Kopyalandı! ✓';
+        navModalCopyBtn.style.backgroundColor = '#10b981';
+        navModalCopyBtn.style.borderColor = '#10b981';
+        showToast('Adres panoya kopyalandı! Haritada aratabilirsiniz.');
+        setTimeout(() => {
+          navModalCopyText.textContent = 'Adresi Kopyala';
+          navModalCopyBtn.style.backgroundColor = '';
+          navModalCopyBtn.style.borderColor = '';
+        }, 2500);
+      }).catch(() => {
+        showToast('Adres: ' + address);
+      });
+    });
+  }
+
+  /* ==========================================================================
+     16. SESLİ & BELİRTİ ODAKLI ARIZA REHBERİ (#sesli-rehber)
+     ========================================================================== */
+  const soundData = {
+    starter: {
+      tag: "ELEKTRİK & MARŞ SİSTEMİ",
+      title: "Marş Motoru Otomatiği veya Akü Kutup Başı Boşluğu",
+      causes: "Akü voltajı dinlenme anında 12V gibi görünse de marş anında 9-10V altına çöküyor olabilir. Veya marş motoru otomatiği (solenoid) kontak dişlileri aşınmış ya da kömürler bitmiştir.",
+      solution: "Önce dijital akü analiz cihazıyla CCA yük testi yapılır. Akü sağlamsa marş dinamosu sökülüp tezgahımızda test edilir, aşınmış kömür ve otomatiği sıfır parça ile revize edilir.",
+      waText: "Merhaba Fatih Usta, marşa basınca arabadan 'tık-tık' sesi geliyor ama motor hiç dönmüyor. Fiyat ve randevu alabilir miyim?"
+    },
+    alternator: {
+      tag: "ŞARJ DİNAMOSU (ALTERNATÖR)",
+      title: "Şarj Dinamosu Diyot Tablası Delinmesi veya Rulman Dağılması",
+      causes: "Alternatör içindeki 6 doğrultucu diyottan biri delindiğinde gaza basıldıkça frekansı yükselen bir ıslık sesi üretir. Tesisata AC dalgalı akım sızarak elektronik beyinlere zarar verebilir.",
+      solution: "Alternatör sökülüp diyot köprüsü ve voltaj regülatörü osiloskopla taranır; delinmiş diyot tablası ve yıpranmış rulmanlar sıfır parça ile yenilenir.",
+      waText: "Merhaba Fatih Usta, gaza bastıkça artan ince bir ıslık ve vınlama sesi var. Şarj dinamosu tamiri için danışmak istiyorum."
+    },
+    relay: {
+      tag: "BCM GÖVDE BEYNİ & SİGORTA",
+      title: "Gövde Kontrol Modülü Röle Arkı veya Havalandırma Klape Motoru",
+      causes: "BCM konfor beynindeki mini lehimli rölelerden biri kontak arkı yaparak sürekli çekip bırakıyor veya klima yönlendirme klape motoru plastik dişlisi sıyırdığı için tıkırtı yapıyor.",
+      solution: "BCM sigorta kutusu sökülüp kontrol edilir; arızalı mini PCB rölesi sıfır komponent ile lehimlenir. Klape motoru için cihazla adaptasyon testi uygulanır.",
+      waText: "Merhaba Fatih Usta, torpidonun altından sürekli 'tıkır tıkır' röle sesi geliyor. BCM veya klape kontrolü için ne zaman gelebilirim?"
+    },
+    misfire: {
+      tag: "ATEŞLEME / BEYİN SÜRÜCÜSÜ",
+      title: "Kızdırma Bujisi Rölesi veya ECU Enjektör Sürücü Mosfeti",
+      causes: "Dizel araçlarda kızdırma beyni silindiri ısıtamıyor veya ECU içindeki piezo/solenoid enjektör sürücü katı soğuk lehim yüzünden silindire düzensiz yakıt püskürtüyor.",
+      solution: "Kızdırma röle çıkış voltajları kontrol edilir. ECU sökülüp tezgahta osiloskopla enjektör kare dalga sinyalleri incelenir ve sürücü mosfetler yenilenir.",
+      waText: "Merhaba Fatih Usta, aracım sabah ilk marşta silkeliyor, vuruntu ve duman atıyor. Enjektör / beyin sürücüsü kontrolü yaptırmak istiyorum."
+    },
+    cluster: {
+      tag: "GÖSTERGE PANELİ & CAN-BUS",
+      title: "Gösterge Saati BGA Lehim Çatlağı & CAN-Bus Sinyal Çökmesi",
+      causes: "Gösterge saati ana işlemcisinde zamanla oluşan mikro çatlaklar (soğuk lehim); araç kasise girdiğinde veya ısındığında ekranın sönmesine ve ibrelerin düşmesine neden olur.",
+      solution: "Gösterge paneli sökülüp optik mikroskop altında incelenir; ana işlemciye hassas BGA lehim tazeleme (reballing) yapılır ve CAN veri hattı test edilir.",
+      waText: "Merhaba Fatih Usta, gösterge paneli aniden kararıp ibreler düşüyor. Gösterge tamiri hakkında bilgi ve fiyat alabilir miyim?"
+    }
+  };
+
+  const soundItems = document.querySelectorAll('.sound-item');
+  const soundSystemTag = document.getElementById('soundSystemTag');
+  const soundDetailTitle = document.getElementById('soundDetailTitle');
+  const soundDetailCauses = document.getElementById('soundDetailCauses');
+  const soundDetailSolution = document.getElementById('soundDetailSolution');
+  const soundWaBtn = document.getElementById('soundWaBtn');
+
+  soundItems.forEach(item => {
+    item.addEventListener('click', () => {
+      soundItems.forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+
+      const soundKey = item.getAttribute('data-sound');
+      const data = soundData[soundKey];
+
+      if (data && soundDetailTitle && soundDetailCauses && soundDetailSolution && soundWaBtn) {
+        if (soundSystemTag) soundSystemTag.textContent = data.tag;
+        soundDetailTitle.textContent = data.title;
+        soundDetailCauses.textContent = data.causes;
+        soundDetailSolution.textContent = data.solution;
+        soundWaBtn.href = `https://wa.me/905300755282?text=${encodeURIComponent(data.waText)}`;
+      }
+    });
+  });
+
+  /* ==========================================================================
+     17. OBD-II ARIZA KODU (DTC) CANLI ARAMA MOTORU (#dtc-lookup)
+     ========================================================================== */
+  const dtcSearchInput = document.getElementById('dtcSearchInput');
+  const dtcSearchClear = document.getElementById('dtcSearchClear');
+  const dtcChips = document.querySelectorAll('.dtc-chip');
+  const dtcCards = document.querySelectorAll('.dtc-card');
+  const dtcNotFound = document.getElementById('dtcNotFound');
+  const dtcCustomWaBtn = document.getElementById('dtcCustomWaBtn');
+
+  function filterDtc(query) {
+    const q = query.trim().toUpperCase();
+    let visibleCount = 0;
+
+    if (dtcSearchClear) {
+      dtcSearchClear.style.display = q.length > 0 ? 'block' : 'none';
+    }
+
+    dtcCards.forEach(card => {
+      const code = (card.getAttribute('data-code') || '').toUpperCase();
+      const text = card.textContent.toUpperCase();
+
+      const matches = !q || q === 'ALL' || code.includes(q) || text.includes(q);
+
+      if (matches) {
+        card.style.display = 'flex';
+        visibleCount++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    if (dtcNotFound) {
+      if (visibleCount === 0) {
+        dtcNotFound.style.display = 'block';
+        if (dtcCustomWaBtn) {
+          const customMsg = `Merhaba Fatih Usta, aracımda '${query}' arıza kodu / problemi çıktı. Cihaz tespiti ve tamir hakkında bilgi alabilir miyim?`;
+          dtcCustomWaBtn.href = `https://wa.me/905300755282?text=${encodeURIComponent(customMsg)}`;
+        }
+      } else {
+        dtcNotFound.style.display = 'none';
+      }
+    }
+  }
+
+  if (dtcSearchInput) {
+    dtcSearchInput.addEventListener('input', (e) => {
+      const val = e.target.value;
+      dtcChips.forEach(chip => {
+        const filterVal = chip.getAttribute('data-filter');
+        if (filterVal !== 'all' && val.toUpperCase().includes(filterVal.toUpperCase())) {
+          chip.classList.add('active');
+        } else if (filterVal === 'all' && val.trim() === '') {
+          chip.classList.add('active');
+        } else {
+          chip.classList.remove('active');
+        }
+      });
+      filterDtc(val);
+    });
+  }
+
+  if (dtcSearchClear && dtcSearchInput) {
+    dtcSearchClear.addEventListener('click', () => {
+      dtcSearchInput.value = '';
+      dtcChips.forEach(c => c.classList.remove('active'));
+      const allChip = document.querySelector('.dtc-chip[data-filter="all"]');
+      if (allChip) allChip.classList.add('active');
+      filterDtc('');
+      dtcSearchInput.focus();
+    });
+  }
+
+  dtcChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      dtcChips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+
+      const filterVal = chip.getAttribute('data-filter');
+      const searchVal = filterVal === 'all' ? '' : filterVal;
+      if (dtcSearchInput) {
+        dtcSearchInput.value = searchVal;
+      }
+      filterDtc(searchVal);
+    });
+  });
+
+  /* ==========================================================================
      12. PWA SERVICE WORKER REGISTRATION
      ========================================================================== */
   if ('serviceWorker' in navigator) {
