@@ -1,5 +1,5 @@
 // Service Worker for Aygün Oto Elektronik 2
-const CACHE_NAME = 'aygun-oto-v1';
+const CACHE_NAME = 'aygun-oto-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

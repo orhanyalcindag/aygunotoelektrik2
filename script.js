@@ -726,6 +726,895 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   /* ==========================================================================
+     18. ACİL YOL YARDIMI & CANLI GPS MODAL (#emergencyModal)
+     ========================================================================== */
+  let selectedEmergencyIssue = 'Akü Bitti / Marş Basmıyor';
+  const emergencyModal = document.getElementById('emergencyModal');
+  const emergencyModalClose = document.getElementById('emergencyModalClose');
+  const emergencyModalBackdrop = document.getElementById('emergencyModalBackdrop');
+  const openEmergencyBtns = document.querySelectorAll('.open-emergency-modal-btn');
+  const emergencyPills = document.querySelectorAll('.emergency-pill');
+  const emergencyGetGpsBtn = document.getElementById('emergencyGetGpsBtn');
+  const emergencyGetGpsBtnText = document.getElementById('emergencyGetGpsBtnText');
+  const emergencyGpsStatusText = document.getElementById('emergencyGpsStatusText');
+  const emergencyCoordsDisplay = document.getElementById('emergencyCoordsDisplay');
+  const emergencyCoordsText = document.getElementById('emergencyCoordsText');
+  const emergencyManualLoc = document.getElementById('emergencyManualLoc');
+  const emergencyManualSendBtn = document.getElementById('emergencyManualSendBtn');
+
+  function openEmergencyModal(e) {
+    if (e) e.preventDefault();
+    if (!emergencyModal) return;
+    emergencyModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeEmergencyModal() {
+    if (!emergencyModal) return;
+    emergencyModal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  openEmergencyBtns.forEach(btn => {
+    btn.addEventListener('click', openEmergencyModal);
+  });
+
+  if (emergencyModalClose) emergencyModalClose.addEventListener('click', closeEmergencyModal);
+  if (emergencyModalBackdrop) emergencyModalBackdrop.addEventListener('click', closeEmergencyModal);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && emergencyModal && emergencyModal.classList.contains('active')) {
+      closeEmergencyModal();
+    }
+  });
+
+  emergencyPills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      emergencyPills.forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      selectedEmergencyIssue = pill.getAttribute('data-issue') || pill.textContent.trim();
+    });
+  });
+
+  // GPS Geolocation retrieval & WhatsApp Dispatch
+  if (emergencyGetGpsBtn) {
+    emergencyGetGpsBtn.addEventListener('click', () => {
+      if (!navigator.geolocation) {
+        showToast('Tarayıcınız GPS konum servisini desteklemiyor. Lütfen konumu yazarak gönderin.');
+        return;
+      }
+
+      emergencyGetGpsBtnText.textContent = 'Canlı Uydu Konumu Alınıyor...';
+      emergencyGetGpsBtn.disabled = true;
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude.toFixed(6);
+          const lon = position.coords.longitude.toFixed(6);
+          const mapsLink = `https://maps.google.com/?q=${lat},${lon}`;
+
+          emergencyGetGpsBtnText.textContent = 'Konum Alındı! WhatsApp Açılıyor...';
+          if (emergencyGpsStatusText) {
+            emergencyGpsStatusText.textContent = `GPS Koordinatları Doğrulandı (Hassasiyet: ±${Math.round(position.coords.accuracy)}m)`;
+          }
+          if (emergencyCoordsDisplay && emergencyCoordsText) {
+            emergencyCoordsDisplay.style.display = 'block';
+            emergencyCoordsText.textContent = `${lat}, ${lon}`;
+          }
+
+          const message = `🚨 *ACİL YOL YARDIMI - AYGÜN OTO ELEKTRONİK 2*\n\nMerhaba Fatih Usta, aracım arıza yaptı ve yolda kaldım!\n\n⚠️ *Arıza Durumu:* ${selectedEmergencyIssue}\n📍 *Canlı GPS Konumum:* ${mapsLink}\n\nAcil teknik destek veya çekici yönlendirmesi rica ediyorum.`;
+          const encoded = encodeURIComponent(message);
+          const waUrl = `https://wa.me/905300755282?text=${encoded}`;
+
+          setTimeout(() => {
+            window.open(waUrl, '_blank');
+            emergencyGetGpsBtnText.textContent = 'Canlı GPS Konumumu Al ve Fatih Usta\'ya Gönder (WhatsApp)';
+            emergencyGetGpsBtn.disabled = false;
+          }, 600);
+        },
+        (err) => {
+          emergencyGetGpsBtnText.textContent = 'Canlı GPS Konumumu Al ve Fatih Usta\'ya Gönder (WhatsApp)';
+          emergencyGetGpsBtn.disabled = false;
+          let errMsg = 'Konum alınamadı. Lütfen tarayıcı konum iznini kontrol edin veya konumu yazın.';
+          if (err.code === 1) errMsg = 'Konum izni reddedildi. Lütfen nerede olduğunuzu yazarak iletin.';
+          showToast(errMsg, 4500);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    });
+  }
+
+  // Manual location sender
+  if (emergencyManualSendBtn && emergencyManualLoc) {
+    emergencyManualSendBtn.addEventListener('click', () => {
+      const locText = emergencyManualLoc.value.trim();
+      if (!locText) {
+        showToast('Lütfen nerede olduğunuzu kısaca yazınız.');
+        emergencyManualLoc.focus();
+        return;
+      }
+      const message = `🚨 *ACİL YOL YARDIMI - AYGÜN OTO ELEKTRONİK 2*\n\nMerhaba Fatih Usta, aracım arıza yaptı ve yolda kaldım!\n\n⚠️ *Arıza Durumu:* ${selectedEmergencyIssue}\n📍 *Bulunduğum Konum / Adres:* ${locText}\n\nAcil destek veya çekici yönlendirmesi rica ediyorum.`;
+      const encoded = encodeURIComponent(message);
+      window.open(`https://wa.me/905300755282?text=${encoded}`, '_blank');
+    });
+  }
+
+  /* ==========================================================================
+     19. WEB AUDIO API AKUSTİK ARIZA SİMÜLATÖRÜ (#sesli-rehber)
+     ========================================================================== */
+  let audioCtx = null;
+  let activeSoundNodes = [];
+  let isSoundPlaying = false;
+  let soundStopTimer = null;
+
+  const soundPlayToggleBtn = document.getElementById('soundPlayToggleBtn');
+  const soundPlayBtnLabel = document.getElementById('soundPlayBtnLabel');
+  const soundPlaybackStatus = document.getElementById('soundPlaybackStatus');
+  const soundEqualizerBars = document.getElementById('soundEqualizerBars');
+
+  function initAudioContext() {
+    if (!audioCtx) {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (AudioContextClass) {
+        audioCtx = new AudioContextClass();
+      }
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  }
+
+  function stopAllSounds() {
+    activeSoundNodes.forEach(node => {
+      try {
+        if (node.stop) node.stop();
+        if (node.disconnect) node.disconnect();
+      } catch (e) {}
+    });
+    activeSoundNodes = [];
+    isSoundPlaying = false;
+
+    if (soundStopTimer) {
+      clearTimeout(soundStopTimer);
+      soundStopTimer = null;
+    }
+
+    if (soundPlayToggleBtn) {
+      soundPlayToggleBtn.classList.remove('playing');
+      const icon = soundPlayToggleBtn.querySelector('.play-btn-icon');
+      if (icon) icon.textContent = '🔊';
+    }
+    if (soundPlayBtnLabel) {
+      soundPlayBtnLabel.textContent = 'Arıza Sesini Dinle (Akustik Simülatör)';
+    }
+    if (soundPlaybackStatus) {
+      soundPlaybackStatus.textContent = 'Hazır · Simülatör';
+    }
+    if (soundEqualizerBars) {
+      soundEqualizerBars.classList.remove('animating');
+    }
+  }
+
+  function playAcousticSimulation(type) {
+    initAudioContext();
+    if (!audioCtx) {
+      showToast('Tarayıcınız ses sentezini desteklemiyor.');
+      return;
+    }
+
+    stopAllSounds();
+    isSoundPlaying = true;
+
+    if (soundPlayToggleBtn) {
+      soundPlayToggleBtn.classList.add('playing');
+      const icon = soundPlayToggleBtn.querySelector('.play-btn-icon');
+      if (icon) icon.textContent = '⏹️';
+    }
+    if (soundPlayBtnLabel) {
+      soundPlayBtnLabel.textContent = 'Sesi Durdur';
+    }
+    if (soundPlaybackStatus) {
+      soundPlaybackStatus.textContent = 'Çalıyor... (Akustik Sentez)';
+    }
+    if (soundEqualizerBars) {
+      soundEqualizerBars.classList.add('animating');
+    }
+
+    const now = audioCtx.currentTime;
+
+    if (type === 'starter') {
+      // Marş tık-tık: Seri metalik vuruntu darbeleri
+      const duration = 5.0;
+      for (let t = 0; t < duration; t += 0.28) {
+        const clickOsc = audioCtx.createOscillator();
+        const clickGain = audioCtx.createGain();
+        clickOsc.type = 'triangle';
+        clickOsc.frequency.setValueAtTime(140, now + t);
+        clickOsc.frequency.exponentialRampToValueAtTime(30, now + t + 0.05);
+
+        clickGain.gain.setValueAtTime(0.8, now + t);
+        clickGain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.06);
+
+        clickOsc.connect(clickGain);
+        clickGain.connect(audioCtx.destination);
+        clickOsc.start(now + t);
+        clickOsc.stop(now + t + 0.07);
+        activeSoundNodes.push(clickOsc, clickGain);
+
+        // Metalik yankı sekmesi
+        const echoOsc = audioCtx.createOscillator();
+        const echoGain = audioCtx.createGain();
+        echoOsc.type = 'sine';
+        echoOsc.frequency.setValueAtTime(420, now + t + 0.03);
+        echoOsc.frequency.exponentialRampToValueAtTime(80, now + t + 0.08);
+        echoGain.gain.setValueAtTime(0.4, now + t + 0.03);
+        echoGain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.09);
+        echoOsc.connect(echoGain);
+        echoGain.connect(audioCtx.destination);
+        echoOsc.start(now + t + 0.03);
+        echoOsc.stop(now + t + 0.1);
+        activeSoundNodes.push(echoOsc, echoGain);
+      }
+    } else if (type === 'alternator') {
+      // Şarj dinamosu ıslığı: Gaz pedalına basıldıkça artan frekans vınlaması
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      gain.gain.setValueAtTime(0.18, now);
+
+      // Frekans yükselip iniyor (rölantiden gaza basma simülasyonu)
+      osc.frequency.setValueAtTime(650, now);
+      osc.frequency.linearRampToValueAtTime(1850, now + 2.0);
+      osc.frequency.linearRampToValueAtTime(2400, now + 3.2);
+      osc.frequency.linearRampToValueAtTime(800, now + 5.5);
+
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(1400, now);
+      filter.Q.value = 4;
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 6.0);
+      activeSoundNodes.push(osc, gain, filter);
+    } else if (type === 'relay') {
+      // Torpido altı BCM röle seri tıkırtısı (12 Hz)
+      const duration = 5.0;
+      for (let t = 0; t < duration; t += 0.09) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(800, now + t);
+        osc.frequency.exponentialRampToValueAtTime(200, now + t + 0.02);
+        gain.gain.setValueAtTime(0.3, now + t);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.025);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now + t);
+        osc.stop(now + t + 0.03);
+        activeSoundNodes.push(osc, gain);
+      }
+    } else if (type === 'misfire') {
+      // Silkeleme / Vuruntu / Tekleme: Düşük frekanslı sarsıntılı darbe
+      const duration = 5.5;
+      for (let t = 0; t < duration; t += 0.18) {
+        const isSkip = (Math.sin(t * 8) > 0.4); // Rastgele ateşleme atlama
+        if (isSkip) continue;
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(55, now + t);
+        osc.frequency.exponentialRampToValueAtTime(25, now + t + 0.08);
+        gain.gain.setValueAtTime(0.7, now + t);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.1);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now + t);
+        osc.stop(now + t + 0.11);
+        activeSoundNodes.push(osc, gain);
+      }
+    } else if (type === 'cluster') {
+      // Gösterge paneli kararması & CAN-Bus kesinti mikro bipi
+      const duration = 5.0;
+      for (let t = 0; t < duration; t += 1.2) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1150, now + t);
+        gain.gain.setValueAtTime(0.35, now + t);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.25);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now + t);
+        osc.stop(now + t + 0.3);
+        activeSoundNodes.push(osc, gain);
+      }
+    }
+
+    soundStopTimer = setTimeout(() => {
+      stopAllSounds();
+    }, 6000);
+  }
+
+  let currentActiveSoundKey = 'starter';
+  soundItems.forEach(item => {
+    item.addEventListener('click', () => {
+      currentActiveSoundKey = item.getAttribute('data-sound') || 'starter';
+      if (isSoundPlaying) {
+        playAcousticSimulation(currentActiveSoundKey);
+      }
+    });
+  });
+
+  if (soundPlayToggleBtn) {
+    soundPlayToggleBtn.addEventListener('click', () => {
+      if (isSoundPlaying) {
+        stopAllSounds();
+      } else {
+        playAcousticSimulation(currentActiveSoundKey);
+      }
+    });
+  }
+
+  /* ==========================================================================
+     20. OTO HESAPLAYICI (KLİMA GAZI & AKÜ ŞARJ ANALİZİ)
+     ========================================================================== */
+  const calcTabs = document.querySelectorAll('.calc-tab-btn');
+  const calcPaneKlima = document.getElementById('calcPaneKlima');
+  const calcPaneAku = document.getElementById('calcPaneAku');
+
+  calcTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      calcTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const target = tab.getAttribute('data-calc');
+      if (target === 'klima') {
+        if (calcPaneKlima) calcPaneKlima.classList.add('active');
+        if (calcPaneAku) calcPaneAku.classList.remove('active');
+      } else {
+        if (calcPaneKlima) calcPaneKlima.classList.remove('active');
+        if (calcPaneAku) calcPaneAku.classList.add('active');
+      }
+    });
+  });
+
+  // AC Database
+  const acDatabase = {
+    volkswagen: [
+      { name: "Passat B8 (2014 - 2022)", gas: "R134a / R1234yf", weight: "500 ± 25 gr", oil: "PAG 46", oilQty: "110 - 130 ml" },
+      { name: "Golf 7 / 7.5 (2012 - 2020)", gas: "R134a / R1234yf", weight: "500 ± 25 gr", oil: "PAG 46", oilQty: "100 - 120 ml" },
+      { name: "Polo 6R / 6C / AW", gas: "R134a", weight: "500 ± 20 gr", oil: "PAG 46", oilQty: "90 - 110 ml" },
+      { name: "Caddy / Transporter T5/T6", gas: "R134a", weight: "600 ± 25 gr", oil: "PAG 46", oilQty: "140 - 160 ml" }
+    ],
+    renault: [
+      { name: "Megane 4 (2016 - 2023)", gas: "R1234yf / R134a", weight: "480 ± 25 gr", oil: "PAG 46", oilQty: "110 - 125 ml" },
+      { name: "Clio 4 / Clio 5", gas: "R134a / R1234yf", weight: "450 ± 25 gr", oil: "PAG 46", oilQty: "95 - 110 ml" },
+      { name: "Dacia Duster 1.5 dCi", gas: "R134a", weight: "475 ± 25 gr", oil: "PAG 46", oilQty: "115 - 130 ml" }
+    ],
+    ford: [
+      { name: "Focus 3 / 3.5 (2011 - 2018)", gas: "R134a", weight: "530 ± 20 gr", oil: "PAG 46", oilQty: "120 - 140 ml" },
+      { name: "Focus 4 (2018+)", gas: "R1234yf", weight: "475 ± 25 gr", oil: "PAG 46", oilQty: "110 - 130 ml" },
+      { name: "Fiesta 1.4 / 1.5 TDCi", gas: "R134a", weight: "520 ± 20 gr", oil: "PAG 46", oilQty: "100 - 120 ml" },
+      { name: "Transit Custom / V362", gas: "R134a", weight: "675 ± 25 gr", oil: "PAG 46", oilQty: "150 - 180 ml" }
+    ],
+    fiat: [
+      { name: "Egea Sedan / HB / Cross", gas: "R1234yf / R134a", weight: "450 ± 20 gr", oil: "PAG 46", oilQty: "90 - 110 ml" },
+      { name: "Doblo 1.3 / 1.6 Multijet", gas: "R134a", weight: "500 ± 25 gr", oil: "PAG 46", oilQty: "120 - 140 ml" },
+      { name: "Fiorino 1.3 Multijet", gas: "R134a", weight: "450 ± 20 gr", oil: "PAG 46", oilQty: "90 - 110 ml" },
+      { name: "Linea 1.3 / 1.6 Multijet", gas: "R134a", weight: "500 ± 20 gr", oil: "PAG 46", oilQty: "100 - 120 ml" }
+    ],
+    bmw: [
+      { name: "3 Serisi F30 (2012 - 2019)", gas: "R134a", weight: "550 ± 25 gr", oil: "PAG 46", oilQty: "120 - 140 ml" },
+      { name: "5 Serisi F10 (2010 - 2017)", gas: "R134a", weight: "650 ± 25 gr", oil: "PAG 46", oilQty: "140 - 160 ml" },
+      { name: "3 Serisi G20 / G30", gas: "R1234yf", weight: "500 ± 20 gr", oil: "PAG 46", oilQty: "110 - 130 ml" }
+    ],
+    mercedes: [
+      { name: "C Serisi W205 (2014 - 2021)", gas: "R134a / R1234yf", weight: "590 ± 20 gr", oil: "PAG 46", oilQty: "120 - 140 ml" },
+      { name: "E Serisi W212 / W213", gas: "R134a / R1234yf", weight: "630 ± 25 gr", oil: "PAG 46", oilQty: "130 - 150 ml" },
+      { name: "Sprinter 906 / 907", gas: "R134a", weight: "820 ± 30 gr", oil: "PAG 46", oilQty: "180 - 220 ml" }
+    ],
+    audi: [
+      { name: "A4 B8 / B9 (2008 - 2023)", gas: "R134a / R1234yf", weight: "550 ± 25 gr", oil: "PAG 46", oilQty: "110 - 130 ml" },
+      { name: "A3 8V / 8Y (2013+)", gas: "R134a / R1234yf", weight: "500 ± 25 gr", oil: "PAG 46", oilQty: "100 - 120 ml" },
+      { name: "A6 C7 / C8 (2011+)", gas: "R134a", weight: "650 ± 25 gr", oil: "PAG 46", oilQty: "130 - 150 ml" }
+    ],
+    toyota: [
+      { name: "Corolla E160 / E210", gas: "R134a / R1234yf", weight: "470 ± 20 gr", oil: "ND-OIL 8 (PAG 46)", oilQty: "90 - 110 ml" },
+      { name: "Yaris / Auris", gas: "R134a", weight: "420 ± 20 gr", oil: "ND-OIL 8", oilQty: "80 - 100 ml" },
+      { name: "C-HR Hybrid", gas: "R1234yf", weight: "450 ± 20 gr", oil: "POE (Elektrikli Kompresör)", oilQty: "100 - 120 ml" }
+    ],
+    hyundai: [
+      { name: "i20 (2014 - 2023)", gas: "R134a / R1234yf", weight: "450 ± 25 gr", oil: "PAG 46", oilQty: "100 - 120 ml" },
+      { name: "i30 / Elantra", gas: "R134a", weight: "500 ± 25 gr", oil: "PAG 46", oilQty: "110 - 130 ml" },
+      { name: "Tucson / Sportage", gas: "R134a / R1234yf", weight: "550 ± 25 gr", oil: "PAG 46", oilQty: "120 - 140 ml" }
+    ],
+    opel: [
+      { name: "Astra J (2009 - 2016)", gas: "R134a", weight: "600 ± 25 gr", oil: "PAG 46", oilQty: "120 - 140 ml" },
+      { name: "Astra K (2015 - 2021)", gas: "R1234yf", weight: "480 ± 20 gr", oil: "PAG 46", oilQty: "100 - 120 ml" },
+      { name: "Corsa D / E / F", gas: "R134a / R1234yf", weight: "450 ± 25 gr", oil: "PAG 46", oilQty: "90 - 110 ml" },
+      { name: "Insignia A / B", gas: "R134a / R1234yf", weight: "600 ± 25 gr", oil: "PAG 46", oilQty: "130 - 150 ml" }
+    ],
+    peugeot: [
+      { name: "3008 / 5008 (2016+)", gas: "R1234yf", weight: "450 ± 25 gr", oil: "PAG 46", oilQty: "100 - 120 ml" },
+      { name: "208 / 308 (2013+)", gas: "R134a / R1234yf", weight: "425 ± 25 gr", oil: "PAG 46", oilQty: "90 - 110 ml" },
+      { name: "Citroën C-Elysée / 301", gas: "R134a", weight: "450 ± 20 gr", oil: "PAG 46", oilQty: "100 - 115 ml" }
+    ],
+    honda: [
+      { name: "Civic FC5 / FK7 (2016 - 2021)", gas: "R1234yf / R134a", weight: "450 ± 20 gr", oil: "PAG 46", oilQty: "90 - 110 ml" },
+      { name: "Civic FB7 (2012 - 2016)", gas: "R134a", weight: "475 ± 25 gr", oil: "PAG 46", oilQty: "100 - 120 ml" },
+      { name: "CR-V 1.6 i-DTEC", gas: "R134a", weight: "510 ± 25 gr", oil: "PAG 46", oilQty: "120 - 140 ml" }
+    ]
+  };
+
+  const acBrandSelect = document.getElementById('acBrandSelect');
+  const acModelSelect = document.getElementById('acModelSelect');
+  const acResultCarName = document.getElementById('acResultCarName');
+  const acResultGasType = document.getElementById('acResultGasType');
+  const acResultGasWeight = document.getElementById('acResultGasWeight');
+  const acResultOilType = document.getElementById('acResultOilType');
+  const acResultOilQty = document.getElementById('acResultOilQty');
+  const acWaBtn = document.getElementById('acWaBtn');
+
+  function updateAcModels() {
+    if (!acBrandSelect || !acModelSelect) return;
+    const brand = acBrandSelect.value;
+    const models = acDatabase[brand] || [];
+
+    acModelSelect.innerHTML = '';
+    models.forEach((item, idx) => {
+      const opt = document.createElement('option');
+      opt.value = idx;
+      opt.textContent = item.name;
+      acModelSelect.appendChild(opt);
+    });
+
+    updateAcSpecs();
+  }
+
+  function updateAcSpecs() {
+    if (!acBrandSelect || !acModelSelect) return;
+    const brand = acBrandSelect.value;
+    const models = acDatabase[brand] || [];
+    const selectedIdx = parseInt(acModelSelect.value, 10) || 0;
+    const car = models[selectedIdx] || models[0];
+
+    if (car) {
+      if (acResultCarName) acResultCarName.textContent = `${acBrandSelect.options[acBrandSelect.selectedIndex].text} ${car.name}`;
+      if (acResultGasType) acResultGasType.textContent = car.gas;
+      if (acResultGasWeight) acResultGasWeight.textContent = car.weight;
+      if (acResultOilType) acResultOilType.textContent = car.oil;
+      if (acResultOilQty) acResultOilQty.textContent = car.oilQty;
+
+      if (acWaBtn) {
+        const query = `Merhaba Fatih Usta, ${acBrandSelect.options[acBrandSelect.selectedIndex].text} ${car.name} aracım için klima gaz dolumu, vakum testi ve kaçak kontrolü yaptırmak istiyorum. Fiyat ve randevu alabilir miyim?`;
+        acWaBtn.href = `https://wa.me/905300755282?text=${encodeURIComponent(query)}`;
+      }
+    }
+  }
+
+  if (acBrandSelect) acBrandSelect.addEventListener('change', updateAcModels);
+  if (acModelSelect) acModelSelect.addEventListener('change', updateAcSpecs);
+  updateAcModels();
+
+  // Battery & Alternator Diagnosis
+  const restingVoltageRange = document.getElementById('restingVoltageRange');
+  const restingVoltageInput = document.getElementById('restingVoltageInput');
+  const runningVoltageRange = document.getElementById('runningVoltageRange');
+  const runningVoltageInput = document.getElementById('runningVoltageInput');
+  const batteryDiagnosisSummary = document.getElementById('batteryDiagnosisSummary');
+  const batteryStatusIndicator = document.getElementById('batteryStatusIndicator');
+  const batteryStatusIcon = document.getElementById('batteryStatusIcon');
+  const batteryStatusTitle = document.getElementById('batteryStatusTitle');
+  const batteryStatusDesc = document.getElementById('batteryStatusDesc');
+  const batterySocText = document.getElementById('batterySocText');
+  const batterySocFill = document.getElementById('batterySocFill');
+  const altRegText = document.getElementById('altRegText');
+  const altRegFill = document.getElementById('altRegFill');
+  const batteryWaBtn = document.getElementById('batteryWaBtn');
+  const presetBtns = document.querySelectorAll('.preset-btn');
+
+  function calculateBatteryState() {
+    if (!restingVoltageRange || !runningVoltageRange) return;
+    const restV = parseFloat(restingVoltageRange.value);
+    const runV = parseFloat(runningVoltageRange.value);
+
+    // Sync input displays
+    if (restingVoltageInput) restingVoltageInput.value = restV.toFixed(1);
+    if (runningVoltageInput) runningVoltageInput.value = runV.toFixed(1);
+
+    // Calculate State of Charge (SOC)
+    let soc = 0;
+    if (restV >= 12.65) soc = 100;
+    else if (restV >= 12.45) soc = 75 + ((restV - 12.45) / 0.20) * 25;
+    else if (restV >= 12.25) soc = 50 + ((restV - 12.25) / 0.20) * 25;
+    else if (restV >= 12.05) soc = 25 + ((restV - 12.05) / 0.20) * 25;
+    else if (restV >= 11.8) soc = 5 + ((restV - 11.8) / 0.25) * 20;
+    else soc = 0;
+    soc = Math.round(Math.max(0, Math.min(100, soc)));
+
+    if (batterySocText) {
+      let socLabel = 'Mükemmel';
+      if (soc < 30) socLabel = 'Kritik / Deşarj';
+      else if (soc < 65) socLabel = 'Zayıf';
+      batterySocText.textContent = `%${soc} (${socLabel})`;
+    }
+    if (batterySocFill) {
+      batterySocFill.style.width = `${soc}%`;
+      batterySocFill.style.backgroundColor = soc > 60 ? '#10b981' : (soc > 30 ? '#f59e0b' : '#e50914');
+    }
+
+    // Alternator analysis
+    let altState = 'normal'; // 'low', 'normal', 'high', 'danger'
+    let altDesc = '';
+    let altTitle = '';
+    let altIndicatorClass = 'status-green';
+    let altIcon = '✓';
+
+    if (runV < 13.2) {
+      altState = 'low';
+      altIndicatorClass = 'status-red';
+      altIcon = '⚠️';
+      altTitle = 'Alternatör Şarj Etmiyor / Aküden Yiyor!';
+      altDesc = `Motor çalışırken voltaj ${runV}V seviyesinde. Şarj dinamosu diyot tablası delinmiş veya kömürler bitmiş. Araç seyir halindeyken aniden stop edebilir.`;
+      if (altRegText) altRegText.textContent = `Yetersiz (${runV}V)`;
+      if (altRegFill) {
+        altRegFill.style.width = '30%';
+        altRegFill.style.backgroundColor = '#e50914';
+      }
+    } else if (runV >= 13.2 && runV < 13.75) {
+      altState = 'medium';
+      altIndicatorClass = 'status-yellow';
+      altIcon = '⚡';
+      altTitle = 'Şarj Voltajı Sınırda / Düşük';
+      altDesc = `Şarj voltajı ${runV}V ile standartın biraz altında. Farlar, klima veya rezistans açıldığında akü boşalabilir. Şarj kömürleri kontrol edilmeli.`;
+      if (altRegText) altRegText.textContent = `Düşük Şarj (${runV}V)`;
+      if (altRegFill) {
+        altRegFill.style.width = '60%';
+        altRegFill.style.backgroundColor = '#f59e0b';
+      }
+    } else if (runV >= 13.75 && runV <= 14.5) {
+      altState = 'normal';
+      altIndicatorClass = 'status-green';
+      altIcon = '✓';
+      altTitle = 'Akü & Şarj Sistemi Mükemmel Seviyede';
+      altDesc = `Dinlenme voltajı ${restV}V, alternatör regülatörü ${runV}V ile fabrikasyon referans değerleri içerisinde. Elektriksel sistem tam sağlıklı.`;
+      if (altRegText) altRegText.textContent = `İdeal (${runV}V)`;
+      if (altRegFill) {
+        altRegFill.style.width = '95%';
+        altRegFill.style.backgroundColor = '#10b981';
+      }
+    } else if (runV > 14.5 && runV <= 14.85) {
+      altState = 'high';
+      altIndicatorClass = 'status-yellow';
+      altIcon = '⚠️';
+      altTitle = 'Yüksek Şarj Seviyesi';
+      altDesc = `Voltaj ${runV}V seviyesinde. Akü sıvısının kaynamasına ve kutup başlarının sülfatlaşmasına neden olabilir. Konjektör kontrol edilmeli.`;
+      if (altRegText) altRegText.textContent = `Yüksek (${runV}V)`;
+      if (altRegFill) {
+        altRegFill.style.width = '80%';
+        altRegFill.style.backgroundColor = '#f59e0b';
+      }
+    } else {
+      altState = 'danger';
+      altIndicatorClass = 'status-red';
+      altIcon = '🔥';
+      altTitle = 'TEHLİKELİ AŞIRI ŞARJ! BEYİNLER YANABİLİR';
+      altDesc = `Şarj voltajı ${runV}V ile kritik tehlike sınırında! Alternatör voltaj regülatörü çökmüş. Motor beyni (ECU), ABS ve multimedya çiplerinin yanma riski çok yüksek. Aracı çalıştırmadan atölyeye başvurun.`;
+      if (altRegText) altRegText.textContent = `KRİTİK AŞIRI ŞARJ (${runV}V)`;
+      if (altRegFill) {
+        altRegFill.style.width = '100%';
+        altRegFill.style.backgroundColor = '#e50914';
+      }
+    }
+
+    if (batteryDiagnosisSummary) batteryDiagnosisSummary.textContent = altTitle;
+    if (batteryStatusIndicator) {
+      batteryStatusIndicator.className = `diag-status-indicator ${altIndicatorClass}`;
+    }
+    if (batteryStatusIcon) batteryStatusIcon.textContent = altIcon;
+    if (batteryStatusTitle) batteryStatusTitle.textContent = altTitle;
+    if (batteryStatusDesc) batteryStatusDesc.textContent = altDesc;
+
+    if (batteryWaBtn) {
+      const q = `Merhaba Fatih Usta, aracımın akü dinlenme voltajını ${restV}V, çalışan şarj voltajını ise ${runV}V olarak ölçtüm. ${altTitle} durumu çıktı. Kontrol ve tamir için bilgi alabilir miyim?`;
+      batteryWaBtn.href = `https://wa.me/905300755282?text=${encodeURIComponent(q)}`;
+    }
+  }
+
+  if (restingVoltageRange) {
+    restingVoltageRange.addEventListener('input', calculateBatteryState);
+  }
+  if (restingVoltageInput) {
+    restingVoltageInput.addEventListener('change', () => {
+      if (restingVoltageRange) {
+        restingVoltageRange.value = restingVoltageInput.value;
+        calculateBatteryState();
+      }
+    });
+  }
+  if (runningVoltageRange) {
+    runningVoltageRange.addEventListener('input', calculateBatteryState);
+  }
+  if (runningVoltageInput) {
+    runningVoltageInput.addEventListener('change', () => {
+      if (runningVoltageRange) {
+        runningVoltageRange.value = runningVoltageInput.value;
+        calculateBatteryState();
+      }
+    });
+  }
+
+  presetBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const rest = btn.getAttribute('data-rest');
+      const run = btn.getAttribute('data-run');
+      if (restingVoltageRange && runningVoltageRange) {
+        restingVoltageRange.value = rest;
+        runningVoltageRange.value = run;
+        calculateBatteryState();
+      }
+    });
+  });
+
+  calculateBatteryState();
+
+  /* ==========================================================================
+     21. ONLİNE BEYİN & CİHAZ TAMİR TAKİP SİSTEMİ (#tamir-takip)
+     ========================================================================== */
+  const trackingData = {
+    '39 AB 123': {
+      title: "Volkswagen Passat B8 1.6 TDI",
+      plate: "39 AB 123",
+      code: "AYG-2026-104",
+      type: "MOTOR BEYNİ (ECU) TAMİRİ",
+      entryTime: "Bugün 09:30",
+      statusClass: "status-ready",
+      statusText: "✓ TEST TAMAMLANDI - TESLİME HAZIR",
+      currentStep: 5,
+      note: "Bosch EDC17C64 motor beyninde 3. silindir enjektör çıkış hattında mosfet delinmesi tespit edildi. Isıya dayanıklı sıfır sürücü çip ve koruma diyotları yenilendi. Kart ultrasonik temizlendi ve koruyucu vernik uygulandı. Masaüstü tezgahımızda 45 dakika yapay yük ve CAN-Bus sinyal testinden başarıyla geçti. Tak-çalıştır durumdadır.",
+      shipping: "Atölyemizden teslim alabilirsiniz veya anlaşmalı kargo ile gönderilebilir."
+    },
+    '34 EG 4501': {
+      title: "BMW 320d F30 (2014)",
+      plate: "34 EG 4501",
+      code: "AYG-2026-092",
+      type: "ABS & ESP POMPA MODÜL ONARIMI",
+      entryTime: "Dün 14:15",
+      statusClass: "status-testing",
+      statusText: "⚡ MASAÜSTÜ TEST TEZGAHINDA",
+      currentStep: 4,
+      note: "ABS hidrolik pompa motor sürücü katındaki soğuk lehimler mikroskop altında mikro BGA istasyonumuzla tazelendi. 60 bar yapay hidrolik basınç ve solenoid açma-kapama testi devam ediyor. Yaklaşık 2 saat içinde montaja hazır hale gelecektir.",
+      shipping: "Atölyemizde test tezgahında işlem görüyor. Test bitince SMS/WhatsApp ile bilgilendirileceksiniz."
+    },
+    '59 TK 882': {
+      title: "Ford Focus 1.5 TDCi (2017)",
+      plate: "59 TK 882",
+      code: "AYG-2026-081",
+      type: "KARGO İLE DPF & EGR YAZILIM ÇÖZÜMÜ",
+      entryTime: "18.10.2026 11:00",
+      statusClass: "status-ready",
+      statusText: "📦 YURTİÇİ KARGOYA TESLİM EDİLDİ",
+      currentStep: 5,
+      note: "Siemens Continental SID807 motor beyni masaüstü K-TAG Master cihazımızla kapağı açılmadan orijinal yedeklendi. DPF rejenerasyon kilitlenmesi ve EGR adaptasyon hatası kalıcı olarak giderildi. Çorlu adresinize kargolandı.",
+      shipping: "Yurtiçi Kargo Takip No: 918237410291 (Tahmini Teslimat: Yarın Öğleden Önce)"
+    }
+  };
+
+  const trackingSearchInput = document.getElementById('trackingSearchInput');
+  const trackingSearchBtn = document.getElementById('trackingSearchBtn');
+  const trackChips = document.querySelectorAll('.track-chip');
+  const trackCarTitle = document.getElementById('trackCarTitle');
+  const trackPlate = document.getElementById('trackPlate');
+  const trackCode = document.getElementById('trackCode');
+  const trackTypeBadge = document.getElementById('trackTypeBadge');
+  const trackStatusBadge = document.getElementById('trackStatusBadge');
+  const trackStatusText = document.getElementById('trackStatusText');
+  const trackTechnicianNote = document.getElementById('trackTechnicianNote');
+  const trackShippingInfo = document.getElementById('trackShippingInfo');
+  const trackWaInquireBtn = document.getElementById('trackWaInquireBtn');
+  const trackingStepper = document.getElementById('trackingStepper');
+
+  function updateTrackingStepper(stepNumber) {
+    if (!trackingStepper) return;
+    const stepItems = trackingStepper.querySelectorAll('.step-item');
+    const stepLines = trackingStepper.querySelectorAll('.step-line');
+
+    stepItems.forEach((item, idx) => {
+      const stepIdx = idx + 1;
+      item.classList.remove('step-completed', 'step-active');
+      if (stepIdx < stepNumber) {
+        item.classList.add('step-completed');
+      } else if (stepIdx === stepNumber) {
+        item.classList.add('step-completed'); // or step-active
+      }
+    });
+
+    stepLines.forEach((line, idx) => {
+      if (idx < stepNumber - 1) {
+        line.classList.add('active');
+      } else {
+        line.classList.remove('active');
+      }
+    });
+  }
+
+  function performTrackingSearch(query) {
+    const q = query.trim().toUpperCase();
+    if (!q) {
+      showToast('Lütfen bir plaka veya servis numarası yazınız.');
+      return;
+    }
+
+    let record = trackingData[q];
+    if (!record) {
+      // Try finding by plate or code
+      const keys = Object.keys(trackingData);
+      for (const k of keys) {
+        const item = trackingData[k];
+        if (item.plate.toUpperCase().includes(q) || item.code.toUpperCase().includes(q)) {
+          record = item;
+          break;
+        }
+      }
+    }
+
+    if (record) {
+      if (trackCarTitle) trackCarTitle.textContent = record.title;
+      if (trackPlate) trackPlate.textContent = record.plate;
+      if (trackCode) trackCode.textContent = record.code;
+      if (trackTypeBadge) trackTypeBadge.textContent = record.type;
+      if (trackStatusBadge) {
+        trackStatusBadge.className = `track-current-status-badge ${record.statusClass}`;
+      }
+      if (trackStatusText) trackStatusText.textContent = record.statusText;
+      if (trackTechnicianNote) trackTechnicianNote.textContent = `"${record.note}"`;
+      if (trackShippingInfo) trackShippingInfo.innerHTML = `<strong>Teslimat Durumu:</strong> ${record.shipping}`;
+      if (trackWaInquireBtn) {
+        const msg = `Merhaba Fatih Usta, ${record.plate} plakalı (${record.code} takip no'lu) cihazımın tamir durumu hakkında bilgi almak istiyorum.`;
+        trackWaInquireBtn.href = `https://wa.me/905300755282?text=${encodeURIComponent(msg)}`;
+      }
+
+      updateTrackingStepper(record.currentStep);
+      showToast(`${record.plate} servis kaydı başarıyla getirildi!`);
+    } else {
+      showToast(`'${query}' için kayıt bulunamadı. Fatih Usta'ya doğrudan sorabilirsiniz.`, 4000);
+      if (trackWaInquireBtn) {
+        const msg = `Merhaba Fatih Usta, web sitenizdeki Tamir Takip portalında '${query}' sorguladım. Cihazımın / aracımın güncel durumu nedir?`;
+        trackWaInquireBtn.href = `https://wa.me/905300755282?text=${encodeURIComponent(msg)}`;
+      }
+    }
+  }
+
+  if (trackingSearchBtn && trackingSearchInput) {
+    trackingSearchBtn.addEventListener('click', () => {
+      performTrackingSearch(trackingSearchInput.value);
+    });
+    trackingSearchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        performTrackingSearch(trackingSearchInput.value);
+      }
+    });
+  }
+
+  trackChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      const code = chip.getAttribute('data-code');
+      if (code) {
+        if (trackingSearchInput) trackingSearchInput.value = code;
+        performTrackingSearch(code);
+      }
+    });
+  });
+
+  /* ==========================================================================
+     22. DİJİTAL GARANTİ BELGESİ & SERVİS FİŞİ SİSTEMİ (#garantiModal)
+     ========================================================================== */
+  const garantiModal = document.getElementById('garantiModal');
+  const garantiModalClose = document.getElementById('garantiModalClose');
+  const garantiModalBackdrop = document.getElementById('garantiModalBackdrop');
+  const openGarantiBtns = document.querySelectorAll('.open-garanti-modal-btn');
+
+  const recCustName = document.getElementById('recCustName');
+  const recPlate = document.getElementById('recPlate');
+  const recVehicle = document.getElementById('recVehicle');
+  const recServiceType = document.getElementById('recServiceType');
+  const recWarranty = document.getElementById('recWarranty');
+  const recParts = document.getElementById('recParts');
+
+  const prtCustName = document.getElementById('prtCustName');
+  const prtPlate = document.getElementById('prtPlate');
+  const prtVehicle = document.getElementById('prtVehicle');
+  const prtServiceType = document.getElementById('prtServiceType');
+  const prtWarranty = document.getElementById('prtWarranty');
+  const prtParts = document.getElementById('prtParts');
+  const recDocNumber = document.getElementById('recDocNumber');
+  const recDate = document.getElementById('recDate');
+
+  const receiptPrintBtn = document.getElementById('receiptPrintBtn');
+  const receiptWhatsAppBtn = document.getElementById('receiptWhatsAppBtn');
+
+  function openGarantiModal(e) {
+    if (e) e.preventDefault();
+    if (!garantiModal) return;
+
+    // Set today's date and random receipt no
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('tr-TR');
+    if (recDate) recDate.textContent = dateStr;
+
+    if (recDocNumber && (!recDocNumber.textContent || recDocNumber.textContent.includes('148'))) {
+      const randNum = Math.floor(100 + Math.random() * 900);
+      recDocNumber.textContent = `AYG-2026-${randNum}`;
+    }
+
+    syncReceiptData();
+    garantiModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeGarantiModal() {
+    if (!garantiModal) return;
+    garantiModal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  function syncReceiptData() {
+    if (prtCustName && recCustName) prtCustName.textContent = recCustName.value || 'Belirtilmedi';
+    if (prtPlate && recPlate) prtPlate.textContent = (recPlate.value || '').toUpperCase();
+    if (prtVehicle && recVehicle) prtVehicle.textContent = recVehicle.value || 'Belirtilmedi';
+    if (prtServiceType && recServiceType) prtServiceType.textContent = recServiceType.value;
+    if (prtWarranty && recWarranty) prtWarranty.textContent = recWarranty.value;
+    if (prtParts && recParts) prtParts.textContent = recParts.value;
+  }
+
+  [recCustName, recPlate, recVehicle, recServiceType, recWarranty, recParts].forEach(el => {
+    if (el) {
+      el.addEventListener('input', syncReceiptData);
+      el.addEventListener('change', syncReceiptData);
+    }
+  });
+
+  openGarantiBtns.forEach(btn => {
+    btn.addEventListener('click', openGarantiModal);
+  });
+
+  if (garantiModalClose) garantiModalClose.addEventListener('click', closeGarantiModal);
+  if (garantiModalBackdrop) garantiModalBackdrop.addEventListener('click', closeGarantiModal);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && garantiModal && garantiModal.classList.contains('active')) {
+      closeGarantiModal();
+    }
+  });
+
+  if (receiptPrintBtn) {
+    receiptPrintBtn.addEventListener('click', () => {
+      syncReceiptData();
+      window.print();
+    });
+  }
+
+  if (receiptWhatsAppBtn) {
+    receiptWhatsAppBtn.addEventListener('click', () => {
+      syncReceiptData();
+      const docNo = recDocNumber ? recDocNumber.textContent : 'AYG-2026';
+      const cName = recCustName ? recCustName.value : '';
+      const plate = recPlate ? recPlate.value.toUpperCase() : '';
+      const veh = recVehicle ? recVehicle.value : '';
+      const sType = recServiceType ? recServiceType.value : '';
+      const warr = recWarranty ? recWarranty.value : '';
+      const prt = recParts ? recParts.value : '';
+
+      const msg = `📋 *AYGÜN OTO ELEKTRONİK 2 - RESMİ GARANTİ & SERVİS FİŞİ*\n\n*Fiş No:* ${docNo}\n*Müşteri:* ${cName}\n*Plaka:* ${plate}\n*Araç:* ${veh}\n\n🔧 *Yapılan İşlem:* ${sType}\n🛡️ *Garanti Süresi:* ${warr}\n⚡ *Kullanılan Parçalar:* ${prt}\n\n*Servis Yetkilisi:* Fatih Usta (0530 075 52 82)\n*Adres:* Kocasinan Mah. Lüleburgaz Eski Sanayi Sitesi 20. Sokak No: 4/1\n\n_Bu belge ile onarılan üniteniz mühürlü test güvencemiz altındadır._`;
+      const encoded = encodeURIComponent(msg);
+      window.open(`https://wa.me/905300755282?text=${encoded}`, '_blank');
+    });
+  }
+
+  /* ==========================================================================
      12. PWA SERVICE WORKER REGISTRATION
      ========================================================================== */
   if ('serviceWorker' in navigator) {
