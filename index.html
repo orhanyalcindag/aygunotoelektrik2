@@ -117,7 +117,6 @@
         <a href="#services" class="nav-link">Hizmetler</a>
         <a href="#ecu" class="nav-link">Beyin Tamiri</a>
         <a href="#garanti" class="nav-link">Garanti</a>
-        <a href="#tamir-takip" class="nav-link nav-highlight">Tamir Takip</a>
         <a href="#oto-hesaplayici" class="nav-link">Hesaplayıcı</a>
         <a href="#diagnostics" class="nav-link">Arıza Asistanı</a>
         <a href="#dtc-lookup" class="nav-link">DTC Kodları</a>
@@ -165,7 +164,6 @@
         <a href="#services" class="m-link">Hizmetlerimiz</a>
         <a href="#ecu" class="m-link">🔬 Beyin Tamiri & Öncesi/Sonrası</a>
         <a href="#garanti" class="m-link">🛡️ Garanti & Güvence Standartları</a>
-        <a href="#tamir-takip" class="m-link highlight-link">🔍 Cihaz / Beyin Tamir Takip Portalı</a>
         <a href="#oto-hesaplayici" class="m-link">⚡ Klima Gazı & Akü Şarj Hesaplayıcı</a>
         <a href="#diagnostics" class="m-link">⚡ Arıza Teşhis Asistanı</a>
         <a href="#dtc-lookup" class="m-link">🔍 Canlı OBD-II Arıza Kodu (DTC) Arama</a>
@@ -1722,134 +1720,6 @@
     </div>
   </section>
 
-  <!-- ONLINE BEYİN & CİHAZ TAMİR TAKİP PORTALI -->
-  <section class="section tracking-section" id="tamir-takip">
-    <div class="container">
-      <div class="section-header text-center">
-        <div class="section-tag center-tag">
-          <span class="tag-bar"></span>
-          <span>CANLI ATÖLYE SİSTEMİ</span>
-          <span class="tag-bar"></span>
-        </div>
-        <h2 class="section-title">
-          Online Beyin & Cihaz <span class="text-glow-red">Tamir Takip Portalı</span>
-        </h2>
-        <p class="section-subtitle">
-          Atölyemize bizzat teslim ettiğiniz veya kargoyla gönderdiğiniz motor beyni (ECU), ABS, gösterge veya konfor modülünüzün anlık tamir ve test aşamasını plakanız veya servis numaranızla canlı sorgulayın.
-        </p>
-      </div>
-
-      <!-- Tracking Search Bar -->
-      <div class="tracking-search-box">
-        <div class="tracking-input-wrapper">
-          <span class="tracking-icon">🔍</span>
-          <input type="text" id="trackingSearchInput" class="tracking-input" placeholder="Plaka veya Takip No girin (Örn: 39 AB 123 veya AYG-2026-104)..." autocomplete="off" spellcheck="false">
-          <button type="button" id="trackingSearchBtn" class="btn btn-primary">
-            <span>Sorgula</span>
-          </button>
-        </div>
-
-        <!-- Quick Demo Chips -->
-        <div class="tracking-quick-chips">
-          <span class="quick-title">Örnek Canlı Kayıtlar:</span>
-          <button type="button" class="track-chip" data-code="39 AB 123">🚗 39 AB 123 (Passat B8 - Hazır)</button>
-          <button type="button" class="track-chip" data-code="34 EG 4501">⚡ 34 EG 4501 (BMW F30 - Testte)</button>
-          <button type="button" class="track-chip" data-code="59 TK 882">📦 59 TK 882 (Ford Focus - Kargoda)</button>
-        </div>
-      </div>
-
-      <!-- Live Tracking Result Area -->
-      <div class="tracking-result-wrapper" id="trackingResultArea">
-        <div class="tracking-card">
-          <div class="tracking-card-header">
-            <div class="track-device-info">
-              <span class="track-device-badge" id="trackTypeBadge">MOTOR BEYNİ (ECU) TAMİRİ</span>
-              <h3 id="trackCarTitle">Volkswagen Passat B8 1.6 TDI</h3>
-              <p id="trackMetaDetails">Plaka: <strong id="trackPlate">39 AB 123</strong> · Servis Takip No: <span id="trackCode" class="mono-code">AYG-2026-104</span> · Giriş: <strong>Bugün 09:30</strong></p>
-            </div>
-            <div class="track-current-status-badge status-ready" id="trackStatusBadge">
-              <span class="status-pulse-dot"></span>
-              <span id="trackStatusText">✓ TEST TAMAMLANDI - TESLİME HAZIR</span>
-            </div>
-          </div>
-
-          <!-- 5-Stage Stepper -->
-          <div class="tracking-stepper" id="trackingStepper">
-            <div class="step-item step-completed" data-step="1">
-              <div class="step-circle">✓</div>
-              <div class="step-info">
-                <strong>1. Kabul & Kayıt</strong>
-                <small>Statik poşet & görsel kontrol</small>
-              </div>
-            </div>
-            <div class="step-line active"></div>
-
-            <div class="step-item step-completed" data-step="2">
-              <div class="step-circle">✓</div>
-              <div class="step-info">
-                <strong>2. Mikroskop İnceleme</strong>
-                <small>Termal kamera & kısa devre</small>
-              </div>
-            </div>
-            <div class="step-line active"></div>
-
-            <div class="step-item step-completed" data-step="3">
-              <div class="step-circle">✓</div>
-              <div class="step-info">
-                <strong>3. Mikro Lehimleme</strong>
-                <small>Sıfır ST/Bosch yarı iletken</small>
-              </div>
-            </div>
-            <div class="step-line active"></div>
-
-            <div class="step-item step-completed" data-step="4">
-              <div class="step-circle">✓</div>
-              <div class="step-info">
-                <strong>4. Canlı Simülasyon Testi</strong>
-                <small>12.000 RPM osiloskop testi (PASS)</small>
-              </div>
-            </div>
-            <div class="step-line active"></div>
-
-            <div class="step-item step-completed" data-step="5">
-              <div class="step-circle">✓</div>
-              <div class="step-info">
-                <strong>5. Teslime / Kargoya Hazır</strong>
-                <small>Mühürlü ve 12 Ay Garantili</small>
-              </div>
-            </div>
-          </div>
-
-          <!-- Technican Note & Diagnostics Box -->
-          <div class="track-log-box">
-            <div class="log-title">
-              <span class="log-icon">🔬</span>
-              <strong>Fatih Usta Teknik Servis Raporu & Müdahale Özeti:</strong>
-            </div>
-            <p id="trackTechnicianNote">
-              "Bosch EDC17C64 motor beyninde 3. silindir enjektör çıkış hattında mosfet delinmesi tespit edildi. Isıya dayanıklı sıfır sürücü çip ve koruma diyotları yenilendi. Kart ultrasonik temizlendi ve koruyucu vernik uygulandı. Masaüstü tezgahımızda 45 dakika yapay yük ve CAN-Bus sinyal testinden başarıyla geçti. Tak-çalıştır durumdadır."
-            </p>
-            <div class="track-log-meta">
-              <span><strong>İşlem Sorumlusu:</strong> Fatih Usta</span>
-              <span><strong>Garanti Kapsamı:</strong> 12 Ay Resmi Servis Güvencesi</span>
-              <span id="trackShippingInfo"><strong>Teslimat Durumu:</strong> Atölyemizden teslim alabilirsiniz veya anlaşmalı kargo ile gönderilebilir.</span>
-            </div>
-          </div>
-
-          <!-- Tracking Actions -->
-          <div class="track-card-actions">
-            <a href="https://wa.me/905300755282?text=Merhaba%20Fatih%20Usta,%2039%20AB%20123%20plakal%C4%B1%20cihaz%C4%B1m%C4%B1n%20tamir%20durumunu%20sorgulad%C4%B1m.%20Teslim%20almak%20istiyorum." target="_blank" rel="noopener" class="btn btn-whatsapp" id="trackWaInquireBtn">
-              <span>💬 Bu Cihaz İçin Fatih Usta ile WhatsApp'tan Görüş</span>
-            </a>
-            <button type="button" class="btn btn-outline open-garanti-modal-btn">
-              <span>📋 Dijital Garanti Belgesini Görüntüle / Yazdır</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </section>
 
   <!-- WORKSHOP GALLERY (REAL PHOTOS) -->
   <section class="section gallery-section" id="gallery">
