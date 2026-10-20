@@ -1,0 +1,24 @@
+{
+  "name": "Aygün Oto Elektronik 2 | Araç Beyin Tamiri & Oto Elektrik",
+  "short_name": "Aygün Oto 2",
+  "description": "Lüleburgaz Fatih Usta - Profesyonel ECU Motor Beyin Tamiri, Bilgisayarlı Arıza Tespiti, Oto Elektrik ve Klima Hizmetleri",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#e50914",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "images/shop_work7.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "images/shop_work7.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

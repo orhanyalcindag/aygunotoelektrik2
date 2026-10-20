@@ -21,6 +21,12 @@
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230a0a0a'/><path d='M20 70 L50 25 L80 70 Z' stroke='%23e50914' stroke-width='8' fill='none'/><circle cx='50' cy='52' r='10' fill='%23e50914'/><path d='M35 55 L65 55' stroke='%23ffffff' stroke-width='4'/></svg>">
 
+  <!-- PWA & Mobile Web App Meta -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#e50914">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
   <!-- Google Fonts: Inter & Outfit -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -105,12 +111,13 @@
       <!-- Desktop Nav -->
       <nav class="desktop-nav">
         <a href="#hero" class="nav-link active">Ana Sayfa</a>
-        <a href="#about" class="nav-link">Hakkımızda</a>
-        <a href="#services" class="nav-link">Hizmetlerimiz</a>
+        <a href="#services" class="nav-link">Hizmetler</a>
+        <a href="#diagnostics" class="nav-link">Arıza Asistanı</a>
         <a href="#ecu" class="nav-link">Beyin Tamiri</a>
-        <a href="#gallery" class="nav-link">Atölyemiz</a>
-        <a href="#reviews" class="nav-link">Yorumlar</a>
-        <a href="#contact" class="nav-link">İletişim & Konum</a>
+        <a href="#equipment" class="nav-link">Cihazlar</a>
+        <a href="#kargo" class="nav-link">Kargo Hizmeti</a>
+        <a href="#randevu" class="nav-link">Randevu</a>
+        <a href="#contact" class="nav-link">İletişim</a>
       </nav>
 
       <!-- Action Buttons -->
@@ -142,9 +149,13 @@
         <a href="#hero" class="m-link">Ana Sayfa</a>
         <a href="#about" class="m-link">Hakkımızda</a>
         <a href="#services" class="m-link">Hizmetlerimiz</a>
-        <a href="#ecu" class="m-link">Araç Beyin Tamiri</a>
+        <a href="#diagnostics" class="m-link">⚡ Arıza Teşhis Asistanı</a>
+        <a href="#ecu" class="m-link">🔬 Beyin Tamiri & Öncesi/Sonrası</a>
+        <a href="#equipment" class="m-link">💻 Lisanslı Cihazlarımız</a>
+        <a href="#kargo" class="m-link">📦 Kargo ile Beyin Gönderimi</a>
+        <a href="#randevu" class="m-link">📅 Online Randevu & Teklif</a>
         <a href="#gallery" class="m-link">Atölyemizden Kareler</a>
-        <a href="#reviews" class="m-link">Google İncelemeleri</a>
+        <a href="#reviews" class="m-link">Müşteri Yorumları</a>
         <a href="#contact" class="m-link">Konum & İletişim</a>
       </div>
       <div class="mobile-contact-card">
@@ -303,6 +314,27 @@
       </div>
     </div>
   </section>
+
+  <!-- EMERGENCY ROADSIDE ASSISTANCE BAR -->
+  <aside class="emergency-bar" aria-label="Acil Yol Yardım">
+    <div class="container emergency-flex">
+      <div class="emergency-info">
+        <span class="emergency-badge"><span class="badge-dot pulse"></span> ACİL YOL YARDIM</span>
+        <h3 class="emergency-title">Lüleburgaz ve Çevresinde Yolda mı Kaldınız?</h3>
+        <p class="emergency-desc">Akü bitmesi, şarj/marş motoru kilitlenmesi veya elektrik arızalarında Fatih Usta yanınızda!</p>
+      </div>
+      <div class="emergency-actions">
+        <a href="tel:05300755282" class="btn btn-emergency-call">
+          <span class="emergency-icon">📞</span>
+          <span>Acil Ara: 0530 075 52 82</span>
+        </a>
+        <a href="https://wa.me/905300755282?text=Merhaba%20Fatih%20Usta,%20L%C3%BCleburgaz%20ve%20%C3%A7evresinde%20yolda%20kald%C4%B1m.%20Acil%20yard%C4%B1m%C4%B1n%C4%B1za%20ihtiyac%C4%B1m%20var.%20Konumumu%20payla%C5%9F%C4%B1yorum:" target="_blank" rel="noopener" class="btn btn-emergency-wa">
+          <span class="emergency-icon">📍</span>
+          <span>Konum Gönder</span>
+        </a>
+      </div>
+    </div>
+  </aside>
 
   <!-- ABOUT SECTION -->
   <section class="section about-section" id="about">
@@ -628,6 +660,297 @@
           </div>
         </div>
       </div>
+
+      <!-- BEFORE / AFTER INTERACTIVE ECU SLIDER -->
+      <div class="before-after-wrapper">
+        <div class="ba-header text-center">
+          <div class="section-tag center-tag">
+            <span class="tag-bar"></span>
+            <span>MİKROSKOPİK İŞÇİLİK</span>
+            <span class="tag-bar"></span>
+          </div>
+          <h3 class="ba-title">ECU Kart Onarımı: <span class="text-glow-red">Öncesi & Sonrası</span></h3>
+          <p class="ba-desc">Su almış, yanmış ve kısa devre yapmış motor beyinlerini fabrikasyon kalitesinde onarıyoruz. Ortadaki çubuğu sağa sola kaydırarak işçilik farkını inceleyin.</p>
+        </div>
+        <div class="ba-container" id="baContainer">
+          <div class="ba-image-layer ba-after-layer">
+            <img src="images/ecu_after_repair.jpg" alt="Onarılmış Temiz Motor Beyni Anakartı" draggable="false">
+            <span class="ba-badge badge-after">✓ ONARILMIŞ (Sıfır Kondisyon)</span>
+          </div>
+          <div class="ba-image-layer ba-before-layer" id="baBeforeLayer">
+            <img src="images/ecu_before_burn.jpg" alt="Su Hasarlı Yanmış Motor Beyni" draggable="false">
+            <span class="ba-badge badge-before">⚠️ ONARIM ÖNCESİ (Yanmış & Oksitli)</span>
+          </div>
+          <div class="ba-divider" id="baDivider">
+            <div class="ba-handle">
+              <span class="ba-arrow">◀▶</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- DIAGNOSTIC ASSISTANT SECTION -->
+  <section class="section diag-section" id="diagnostics">
+    <div class="container">
+      <div class="section-header text-center">
+        <div class="section-tag center-tag">
+          <span class="tag-bar"></span>
+          <span>DİJİTAL ÖN TEŞHİS</span>
+          <span class="tag-bar"></span>
+        </div>
+        <h2 class="section-title">
+          Aracınızda Ne Tür Bir <br>
+          <span class="text-glow-red">Problem Yaşıyorsunuz?</span>
+        </h2>
+        <p class="section-subtitle">
+          Gösterge panelindeki lambayı veya aracınızın çalışma şikayetini seçin; Fatih Usta'nın ön teşhisini ve çözüm yolunu anında görün.
+        </p>
+      </div>
+
+      <!-- Tab Buttons -->
+      <div class="diag-tabs">
+        <button type="button" class="diag-tab-btn active" data-tab="warning-lights">
+          <span>⚠️</span> Gösterge Uyarı Lambaları
+        </button>
+        <button type="button" class="diag-tab-btn" data-tab="driving-symptoms">
+          <span>🔧</span> Sürüş & Çalışma Belirtileri
+        </button>
+      </div>
+
+      <!-- Tab 1: Gösterge Uyarı Lambaları -->
+      <div class="diag-tab-content active" id="tab-warning-lights">
+        <div class="diag-grid">
+          <div class="diag-card active" data-issue="check-engine">
+            <div class="diag-icon-box yellow">⚙️</div>
+            <h4>Motor Arıza Lambası</h4>
+            <p>Check Engine ışığı sürekli veya yanıp sönüyor.</p>
+          </div>
+          <div class="diag-card" data-issue="epc-light">
+            <div class="diag-icon-box orange">⚡</div>
+            <h4>EPC / Gaz Kelebeği</h4>
+            <p>Araç gaz yemiyor, gaz pedalı tepki vermiyor.</p>
+          </div>
+          <div class="diag-card" data-issue="battery-light">
+            <div class="diag-icon-box red">🔋</div>
+            <h4>Akü / Şarj Lambası</h4>
+            <p>Kırmızı akü ışığı yanıyor, alternatör şarj etmiyor.</p>
+          </div>
+          <div class="diag-card" data-issue="abs-esp">
+            <div class="diag-icon-box yellow">🛑</div>
+            <h4>ABS / ESP / Fren Işığı</h4>
+            <p>ABS devre dışı, tekerlek hız sensörü arızası.</p>
+          </div>
+          <div class="diag-card" data-issue="glow-plug">
+            <div class="diag-icon-box yellow">➰</div>
+            <h4>Kızdırma / Isıtma Bujisi</h4>
+            <p>Dizel araçta sarmal tel simgesi yanıp sönüyor.</p>
+          </div>
+          <div class="diag-card" data-issue="airbag-light">
+            <div class="diag-icon-box red">🛡️</div>
+            <h4>Airbag / Hava Yastığı</h4>
+            <p>Kaza sonrası kilitlenme veya sargı kopukluğu.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Sürüş & Çalışma Belirtileri -->
+      <div class="diag-tab-content" id="tab-driving-symptoms">
+        <div class="diag-grid">
+          <div class="diag-card" data-issue="crank-no-start">
+            <div class="diag-icon-box red">🔑</div>
+            <h4>Marş Basıyor Çalışmıyor</h4>
+            <p>Marş dönüyor fakat motor ateşleme veya yakıt almıyor.</p>
+          </div>
+          <div class="diag-card" data-issue="limp-mode">
+            <div class="diag-icon-box orange">🐢</div>
+            <h4>Koruma Modu (Çekiş Düştü)</h4>
+            <p>Araç 3000 devri geçmiyor, yokuşta bayılıyor.</p>
+          </div>
+          <div class="diag-card" data-issue="ac-warm">
+            <div class="diag-icon-box blue">❄️</div>
+            <h4>Klima Soğuk Üflemiyor</h4>
+            <p>Kompresör devreye girmiyor, sıcak üflüyor.</p>
+          </div>
+          <div class="diag-card" data-issue="parasitic-drain">
+            <div class="diag-icon-box red">⚡</div>
+            <h4>Akü Kaçağı (Sabah Bitmesi)</h4>
+            <p>1-2 gün araç park halinde kalınca akü boşalıyor.</p>
+          </div>
+          <div class="diag-card" data-issue="electrical-ghosts">
+            <div class="diag-icon-box yellow">💡</div>
+            <h4>Farlar / Silecekler Karışıyor</h4>
+            <p>Konfor beyni (BCM) veya sigorta paneli hatası.</p>
+          </div>
+          <div class="diag-card" data-issue="dpf-clogged">
+            <div class="diag-icon-box orange">💨</div>
+            <h4>DPF / AdBlue Hatası</h4>
+            <p>Partikül filtresi dolu, araç çalıştırma sayacı düşüyor.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Result Card Display -->
+      <div class="diag-result-card" id="diagResultBox">
+        <div class="result-header">
+          <div class="result-badge-wrap">
+            <span class="result-badge">FATİH USTA'NIN ÖN TEŞHİSİ</span>
+            <h3 id="resultTitle">Motor Arıza Lambası (Check Engine)</h3>
+          </div>
+          <span class="severity-pill medium" id="resultSeverity">Orta - Yüksek Öncelik</span>
+        </div>
+        <div class="result-body">
+          <div class="result-detail-col">
+            <h5>Olası Nedenler</h5>
+            <p id="resultCauses">Motor beyni (ECU) sensör okuma hatası, ateşleme bobini/buji arızası, oksijen sensörü (Lambda), gaz kelebeği kirliliği veya yakıt basınç regülatörü sapması.</p>
+          </div>
+          <div class="result-detail-col">
+            <h5>Çözüm & Uygulama</h5>
+            <p id="resultSolution">Atölyemizde lisanslı arıza tespit cihazıyla canlı sensör değerleri okunur, arıza hafızası temizlenir veya beyin donanımsal arızası varsa mikro tamir yapılır.</p>
+          </div>
+        </div>
+        <div class="result-footer">
+          <a href="https://wa.me/905300755282?text=Merhaba%20Fatih%20Usta,%20arac%C4%B1mda%20Motor%20Ar%C4%B1za%20Lambas%C4%B1%20yan%C4%B1yor.%20Bilgi%20ve%20randevu%20alabilir%20miyim?" id="resultWaBtn" target="_blank" rel="noopener" class="btn btn-whatsapp">
+            <span>💬</span> Bu Arıza İçin Fatih Usta'ya Danış
+          </a>
+          <a href="tel:05300755282" class="btn btn-outline">
+            <span>📞</span> Hemen Ara: 0530 075 52 82
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROFESSIONAL EQUIPMENT SHOWCASE -->
+  <section class="section equipment-section" id="equipment">
+    <div class="container">
+      <div class="section-header text-center">
+        <div class="section-tag center-tag">
+          <span class="tag-bar"></span>
+          <span>PROFESYONEL DONANIM</span>
+          <span class="tag-bar"></span>
+        </div>
+        <h2 class="section-title">
+          Lisanslı Cihazlar, <br>
+          <span class="text-glow-red">Kusursuz Sonuçlar</span>
+        </h2>
+        <p class="section-subtitle">
+          Sanayide tahminle değil, otomotiv elektroniğinin dünya standartlarındaki orijinal teşhis ve programlama cihazlarıyla çalışıyoruz.
+        </p>
+      </div>
+
+      <div class="equipment-grid">
+        <div class="equip-card">
+          <div class="equip-icon-wrap">💻</div>
+          <div class="equip-content">
+            <div class="equip-brand">AUTEL MAXISYS</div>
+            <h4>OEM Seviye Arıza Tespiti & Osiloskop</h4>
+            <p>Tüm marka ve modellerde fabrikasyon hata kodları, canlı sensör dalga formları ve adaptasyon.</p>
+            <span class="equip-tag">Motor & Şanzıman</span>
+          </div>
+        </div>
+        <div class="equip-card">
+          <div class="equip-icon-wrap">⚡</div>
+          <div class="equip-content">
+            <div class="equip-brand">KESS3 & K-TAG MASTER</div>
+            <h4>ECU Masaüstü (Bench / Boot) Programlama</h4>
+            <p>Beyin kapağını açmadan güvenli yazılım okuma, klonlama, DPF/EGR çözümleri ve mikroçip flash aktarımı.</p>
+            <span class="equip-tag">Lisanslı Master Cihaz</span>
+          </div>
+        </div>
+        <div class="equip-card">
+          <div class="equip-icon-wrap">🔬</div>
+          <div class="equip-content">
+            <div class="equip-brand">HANTEK / PICOSCOPE</div>
+            <h4>Dijital Osiloskop & CAN-Bus Analizi</h4>
+            <p>Krank/Eksantrik sensör sinyalleri, enjektör tetikleme darbeleri ve araç içi veri yolu (CAN/LIN) ölçümü.</p>
+            <span class="equip-tag">Hassas Ölçüm</span>
+          </div>
+        </div>
+        <div class="equip-card">
+          <div class="equip-icon-wrap">🔥</div>
+          <div class="equip-content">
+            <div class="equip-brand">WELLER & BGA REWORK</div>
+            <h4>Mikro SMD Lehimleme İstasyonu</h4>
+            <p>0.1 milimetre bacak aralıklı işlemciler, epromlar ve sürücü transistörlerin mikroskop altında montajı.</p>
+            <span class="equip-tag">Mikro Elektronik</span>
+          </div>
+        </div>
+        <div class="equip-card">
+          <div class="equip-icon-wrap">❄️</div>
+          <div class="equip-content">
+            <div class="equip-brand">ROBINAIR DİJİTAL İSTASYON</div>
+            <h4>R134a & R1234yf Klima Gaz Dolumu</h4>
+            <p>Gram hassasiyetinde gaz tartımı, otomatik vakum testi, UV kaçak kontrolü ve özel kompresör PAG yağı.</p>
+            <span class="equip-tag">Tam Otomatik</span>
+          </div>
+        </div>
+        <div class="equip-card">
+          <div class="equip-icon-wrap">📱</div>
+          <div class="equip-content">
+            <div class="equip-brand">LAUNCH X431 PRO</div>
+            <h4>Modül Kodlama & Gizli Özellik Açma</h4>
+            <p>VAG grubu, BMW, Mercedes ve Renault araçlarda beyin tanıtma, direksiyon açı kalibrasyonu ve kodlama.</p>
+            <span class="equip-tag">Online Kodlama</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIL-IN ECU SERVICE SECTION -->
+  <section class="section kargo-section" id="kargo">
+    <div class="container">
+      <div class="kargo-box">
+        <div class="kargo-header text-center">
+          <div class="section-tag center-tag">
+            <span class="tag-bar"></span>
+            <span>TÜM TRAKYA & TÜRKİYE</span>
+            <span class="tag-bar"></span>
+          </div>
+          <h2 class="kargo-title">Lüleburgaz Dışında mısınız? <br><span class="text-glow-red">Beyninizi Kargolayın, 24 Saatte Geri Gönderelim!</span></h2>
+          <p class="kargo-lead">Kırklareli, Edirne, Tekirdağ, Çorlu, İstanbul ve Türkiye'nin her yerinden arızalı motor beyinlerinizi anlaşmalı kargo ile bize ulaştırabilirsiniz.</p>
+        </div>
+
+        <div class="kargo-steps-grid">
+          <div class="k-step-card">
+            <div class="k-step-badge">1. ADIM</div>
+            <div class="k-step-icon">💬</div>
+            <h4>WhatsApp ile Ön Bilgi</h4>
+            <p>Beyin parça numarasını ve arıza belirtisini Fatih Usta'ya mesaj atın; ön fiyat ve yapılabilirlik teyidi alın.</p>
+          </div>
+          <div class="k-step-card">
+            <div class="k-step-badge">2. ADIM</div>
+            <div class="k-step-icon">📦</div>
+            <h4>Güvenli Paketleme</h4>
+            <p>Elektronik beyni balonlu naylona sarıp sağlam bir kutuya yerleştirin. İletişim bilgilerinizi kutu içine ekleyin.</p>
+          </div>
+          <div class="k-step-card">
+            <div class="k-step-badge">3. ADIM</div>
+            <div class="k-step-icon">🚚</div>
+            <h4>Kargoya Teslim</h4>
+            <p>Yurtiçi, Aras, MNG veya Sürat Kargo ile Lüleburgaz Köprübaşı Sanayi Sitesi adresimize gönderin.</p>
+          </div>
+          <div class="k-step-card">
+            <div class="k-step-badge">4. ADIM</div>
+            <div class="k-step-icon">⚡</div>
+            <h4>Test, Tamir & Aynı Gün Teslim</h4>
+            <p>Laboratuvarımızda tezgahta test edilir, onarılır ve video kaydıyla test edilip garantili olarak geri kargolanır.</p>
+          </div>
+        </div>
+
+        <div class="kargo-address-box">
+          <div class="address-details">
+            <span class="addr-label">RESMİ KARGO GÖNDERİM ADRESİ:</span>
+            <p id="kargoAddressText"><strong>Alıcı:</strong> Aygün Oto Elektronik 2 (Fatih Usta) · <strong>Tel:</strong> 0530 075 52 82<br><strong>Adres:</strong> Kocasinan Mahallesi, Lüleburgaz Köprübaşı Eski Sanayi Sitesi, Sanayi 20. Sokak No: 4/1, Posta Kodu: 39750 Lüleburgaz / Kırklareli</p>
+          </div>
+          <button type="button" class="btn btn-primary" id="copyAddressBtn">
+            <span class="btn-icon">📋</span> <span id="copyBtnText">Kargo Adresini Kopyala</span>
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -867,6 +1190,87 @@
     </div>
   </section>
 
+  <!-- ONLINE APPOINTMENT & QUOTE WIZARD -->
+  <section class="section wizard-section" id="randevu">
+    <div class="container">
+      <div class="wizard-box">
+        <div class="section-header text-center">
+          <div class="section-tag center-tag">
+            <span class="tag-bar"></span>
+            <span>HIZLI RANDEVU</span>
+            <span class="tag-bar"></span>
+          </div>
+          <h2 class="section-title">
+            3 Adımda <span class="text-glow-red">Randevu & Fiyat Teklifi Al</span>
+          </h2>
+          <p class="section-subtitle">
+            Araç markanızı ve ihtiyacınız olan işlemi seçin; Fatih Usta'ya özel formatlanmış mesaj ile sıra beklemeden randevu oluşturun.
+          </p>
+        </div>
+
+        <div class="wizard-steps-wrapper">
+          <!-- Step 1: Araç Markası -->
+          <div class="wizard-step">
+            <div class="step-title-row">
+              <span class="step-circle">1</span>
+              <h4>Araç Markanızı Seçin</h4>
+            </div>
+            <div class="wizard-options-grid" id="brandOptions">
+              <button type="button" class="wizard-opt-btn active" data-value="Volkswagen / VAG">Volkswagen / Audi / Seat / Skoda</button>
+              <button type="button" class="wizard-opt-btn" data-value="Renault / Dacia">Renault / Dacia</button>
+              <button type="button" class="wizard-opt-btn" data-value="Ford">Ford</button>
+              <button type="button" class="wizard-opt-btn" data-value="Fiat / Alfa">Fiat / Alfa Romeo</button>
+              <button type="button" class="wizard-opt-btn" data-value="BMW / Mercedes">BMW / Mercedes-Benz</button>
+              <button type="button" class="wizard-opt-btn" data-value="Opel / Peugeot / Citroen">Opel / Peugeot / Citroen</button>
+              <button type="button" class="wizard-opt-btn" data-value="Toyota / Asya">Toyota / Hyundai / Kia / Japon</button>
+              <button type="button" class="wizard-opt-btn" data-value="Diğer Marka">Diğer Ticari / Binek</button>
+            </div>
+          </div>
+
+          <!-- Step 2: Yapılacak İşlem -->
+          <div class="wizard-step">
+            <div class="step-title-row">
+              <span class="step-circle">2</span>
+              <h4>Yapılacak İşlemi Seçin</h4>
+            </div>
+            <div class="wizard-options-grid" id="serviceOptions">
+              <button type="button" class="wizard-opt-btn active" data-value="ECU Motor Beyin Tamiri">ECU Motor Beyin Tamiri</button>
+              <button type="button" class="wizard-opt-btn" data-value="Bilgisayarlı Arıza Tespiti">Bilgisayarlı Arıza Tespiti</button>
+              <button type="button" class="wizard-opt-btn" data-value="Oto Elektrik & Tesisat">Genel Oto Elektrik / Şarj / Marş</button>
+              <button type="button" class="wizard-opt-btn" data-value="Klima Bakımı & Gaz Dolumu">Klima Gaz Dolumu & Bakım</button>
+              <button type="button" class="wizard-opt-btn" data-value="ABS / Airbag / Gösterge Tamiri">ABS / Airbag / Gösterge Kodlama</button>
+              <button type="button" class="wizard-opt-btn" data-value="DPF / EGR / AdBlue Yazılımı">DPF / EGR / AdBlue Çözümleri</button>
+            </div>
+          </div>
+
+          <!-- Step 3: Zaman Tercihi -->
+          <div class="wizard-step">
+            <div class="step-title-row">
+              <span class="step-circle">3</span>
+              <h4>Ne Zaman Gelmek İstersiniz?</h4>
+            </div>
+            <div class="wizard-options-grid" id="timeOptions">
+              <button type="button" class="wizard-opt-btn active" data-value="Bugün / Acil">Bugün (Acil İşlem)</button>
+              <button type="button" class="wizard-opt-btn" data-value="Yarın">Yarın</button>
+              <button type="button" class="wizard-opt-btn" data-value="Bu Hafta İçi">Bu Hafta İçi</button>
+              <button type="button" class="wizard-opt-btn" data-value="Cumartesi Günü">Cumartesi Günü</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="wizard-submit-bar">
+          <div class="wizard-summary">
+            <span>Seçilen Bilgiler:</span>
+            <strong id="wizardSummaryText">Volkswagen / VAG · ECU Motor Beyin Tamiri · Bugün / Acil</strong>
+          </div>
+          <button type="button" class="btn btn-primary btn-glow" id="wizardSubmitBtn">
+            <span>💬</span> WhatsApp ile Randevu Talebini İlet
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- FAQ SECTION (SIKÇA SORULAN SORULAR) -->
   <section class="section faq-section" id="faq">
     <div class="container">
@@ -1038,6 +1442,34 @@
         </div>
 
       </div>
+
+      <!-- REGIONAL SERVICE NETWORK (LOCAL SEO) -->
+      <div class="regional-network-box">
+        <div class="network-header">
+          <span class="net-icon">📍</span>
+          <div class="network-text">
+            <h4 class="network-title">Trakya Bölgesi Hizmet Ağımız</h4>
+            <p class="network-desc">Lüleburgaz merkezli atölyemiz, çevre il ve ilçelerden gelen tüm araçlara profesyonel beyin tamiri ve oto elektronik çözümleri sunar:</p>
+          </div>
+        </div>
+        <div class="network-tags">
+          <a href="#contact" class="net-tag">Lüleburgaz Eski Sanayi</a>
+          <a href="#contact" class="net-tag">Lüleburgaz Yeni Sanayi</a>
+          <a href="#contact" class="net-tag">Babaeski Oto Elektrik</a>
+          <a href="#contact" class="net-tag">Kırklareli Beyin Tamiri</a>
+          <a href="#contact" class="net-tag">Çorlu ECU Onarım</a>
+          <a href="#contact" class="net-tag">Edirne Oto Elektronik</a>
+          <a href="#contact" class="net-tag">Tekirdağ Araç Beyin</a>
+          <a href="#contact" class="net-tag">Muratlı</a>
+          <a href="#contact" class="net-tag">Pınarhisar</a>
+          <a href="#contact" class="net-tag">Vize</a>
+          <a href="#contact" class="net-tag">Havsa</a>
+          <a href="#contact" class="net-tag">Hayrabolu</a>
+          <a href="#contact" class="net-tag">Saray</a>
+          <a href="#contact" class="net-tag">Çerkezköy</a>
+        </div>
+      </div>
+
     </div>
   </section>
 
@@ -1064,11 +1496,13 @@
           <h4>Hızlı Bağlantılar</h4>
           <ul>
             <li><a href="#hero">Ana Sayfa</a></li>
-            <li><a href="#about">Hakkımızda</a></li>
             <li><a href="#services">Tüm Hizmetler</a></li>
+            <li><a href="#diagnostics">Arıza Teşhis Asistanı</a></li>
             <li><a href="#ecu">ECU Beyin Tamiri</a></li>
+            <li><a href="#equipment">Lisanslı Cihazlarımız</a></li>
+            <li><a href="#kargo">Kargo ile Tamir</a></li>
+            <li><a href="#randevu">Online Randevu</a></li>
             <li><a href="#gallery">Atölyemiz</a></li>
-            <li><a href="#reviews">Google Yorumları</a></li>
             <li><a href="#contact">İletişim & Konum</a></li>
           </ul>
         </div>
