@@ -4965,6 +4965,20 @@ h1, h2, h3, h4, h5, h6 {
   padding: 2px 8px;
   border-radius: 12px;
   margin-left: auto;
+  transition: all var(--transition-fast);
+}
+
+.sound-item.playing {
+  border-color: var(--red-bright) !important;
+  box-shadow: 0 0 25px rgba(229, 9, 20, 0.4) !important;
+}
+
+.sound-item.playing .sound-play-badge {
+  background: var(--red-primary) !important;
+  color: #ffffff !important;
+  border-color: #ff4d4d !important;
+  box-shadow: 0 0 12px rgba(229, 9, 20, 0.6);
+  animation: pulseGlow 1.2s infinite;
 }
 
 .sound-player-bar {

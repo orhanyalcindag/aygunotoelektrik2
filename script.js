@@ -620,23 +620,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const soundDetailSolution = document.getElementById('soundDetailSolution');
   const soundWaBtn = document.getElementById('soundWaBtn');
 
-  soundItems.forEach(item => {
-    item.addEventListener('click', () => {
-      soundItems.forEach(i => i.classList.remove('active'));
-      item.classList.add('active');
+  function updateSoundDetailPanel(soundKey) {
+    const data = soundData[soundKey];
+    if (data && soundDetailTitle && soundDetailCauses && soundDetailSolution && soundWaBtn) {
+      if (soundSystemTag) soundSystemTag.textContent = data.tag;
+      soundDetailTitle.textContent = data.title;
+      soundDetailCauses.textContent = data.causes;
+      soundDetailSolution.textContent = data.solution;
+      soundWaBtn.href = `https://wa.me/905300755282?text=${encodeURIComponent(data.waText)}`;
+    }
+  }
 
-      const soundKey = item.getAttribute('data-sound');
-      const data = soundData[soundKey];
-
-      if (data && soundDetailTitle && soundDetailCauses && soundDetailSolution && soundWaBtn) {
-        if (soundSystemTag) soundSystemTag.textContent = data.tag;
-        soundDetailTitle.textContent = data.title;
-        soundDetailCauses.textContent = data.causes;
-        soundDetailSolution.textContent = data.solution;
-        soundWaBtn.href = `https://wa.me/905300755282?text=${encodeURIComponent(data.waText)}`;
-      }
-    });
-  });
+  // Başlangıç ilk kartı (starter) detay paneline senkronize et
+  updateSoundDetailPanel('starter');
 
   /* ==========================================================================
      17. OBD-II ARIZA KODU (DTC) CANLI ARAMA MOTORU (#dtc-lookup)
@@ -843,8 +839,11 @@ document.addEventListener('DOMContentLoaded', () => {
      19. WEB AUDIO API AKUSTİK ARIZA SİMÜLATÖRÜ (#sesli-rehber)
      ========================================================================== */
   let audioCtx = null;
+  let masterGain = null;
   let activeSoundNodes = [];
   let isSoundPlaying = false;
+  let currentPlayingKey = null;
+  let currentActiveSoundKey = 'starter';
   let soundStopTimer = null;
 
   const soundPlayToggleBtn = document.getElementById('soundPlayToggleBtn');
@@ -852,32 +851,52 @@ document.addEventListener('DOMContentLoaded', () => {
   const soundPlaybackStatus = document.getElementById('soundPlaybackStatus');
   const soundEqualizerBars = document.getElementById('soundEqualizerBars');
 
-  function initAudioContext() {
-    if (!audioCtx) {
+  async function ensureAudioContext() {
+    try {
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-      if (AudioContextClass) {
+      if (!AudioContextClass) return null;
+      if (!audioCtx) {
         audioCtx = new AudioContextClass();
       }
-    }
-    if (audioCtx && audioCtx.state === 'suspended') {
-      audioCtx.resume();
+      if (audioCtx.state === 'suspended') {
+        await audioCtx.resume();
+      }
+      return audioCtx;
+    } catch (err) {
+      console.warn('AudioContext init error:', err);
+      return null;
     }
   }
 
   function stopAllSounds() {
-    activeSoundNodes.forEach(node => {
-      try {
-        if (node.stop) node.stop();
-        if (node.disconnect) node.disconnect();
-      } catch (e) {}
-    });
-    activeSoundNodes = [];
-    isSoundPlaying = false;
-
     if (soundStopTimer) {
       clearTimeout(soundStopTimer);
       soundStopTimer = null;
     }
+
+    // Pürüzsüz kesinti için ana ses seviyesini 50ms içinde sıfıra indir
+    if (masterGain && audioCtx) {
+      try {
+        const curTime = audioCtx.currentTime;
+        masterGain.gain.cancelScheduledValues(curTime);
+        masterGain.gain.setValueAtTime(masterGain.gain.value, curTime);
+        masterGain.gain.linearRampToValueAtTime(0.0001, curTime + 0.05);
+      } catch (e) {}
+    }
+
+    setTimeout(() => {
+      activeSoundNodes.forEach(node => {
+        try {
+          if (node.stop) node.stop();
+          if (node.disconnect) node.disconnect();
+        } catch (e) {}
+      });
+      activeSoundNodes = [];
+      masterGain = null;
+    }, 60);
+
+    isSoundPlaying = false;
+    currentPlayingKey = null;
 
     if (soundPlayToggleBtn) {
       soundPlayToggleBtn.classList.remove('playing');
@@ -893,17 +912,33 @@ document.addEventListener('DOMContentLoaded', () => {
     if (soundEqualizerBars) {
       soundEqualizerBars.classList.remove('animating');
     }
+
+    soundItems.forEach(item => {
+      item.classList.remove('playing');
+      const badge = item.querySelector('.sound-play-badge');
+      if (badge) badge.textContent = '🔊 Dinle';
+    });
   }
 
-  function playAcousticSimulation(type) {
-    initAudioContext();
-    if (!audioCtx) {
-      showToast('Tarayıcınız ses sentezini desteklemiyor.');
+  async function playAcousticSimulation(type) {
+    const ctx = await ensureAudioContext();
+    if (!ctx) {
+      if (typeof showToast === 'function') {
+        showToast('Tarayıcınız ses sentezini desteklemiyor.');
+      }
       return;
     }
 
     stopAllSounds();
+
     isSoundPlaying = true;
+    currentPlayingKey = type;
+
+    // Master Gain Aşaması (Hoparlöre yönlendirme ve seviye kontrolü)
+    masterGain = ctx.createGain();
+    masterGain.gain.setValueAtTime(0.88, ctx.currentTime);
+    masterGain.connect(ctx.destination);
+    activeSoundNodes.push(masterGain);
 
     if (soundPlayToggleBtn) {
       soundPlayToggleBtn.classList.add('playing');
@@ -920,132 +955,242 @@ document.addEventListener('DOMContentLoaded', () => {
       soundEqualizerBars.classList.add('animating');
     }
 
-    const now = audioCtx.currentTime;
-
-    if (type === 'starter') {
-      // Marş tık-tık: Seri metalik vuruntu darbeleri
-      const duration = 5.0;
-      for (let t = 0; t < duration; t += 0.28) {
-        const clickOsc = audioCtx.createOscillator();
-        const clickGain = audioCtx.createGain();
-        clickOsc.type = 'triangle';
-        clickOsc.frequency.setValueAtTime(140, now + t);
-        clickOsc.frequency.exponentialRampToValueAtTime(30, now + t + 0.05);
-
-        clickGain.gain.setValueAtTime(0.8, now + t);
-        clickGain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.06);
-
-        clickOsc.connect(clickGain);
-        clickGain.connect(audioCtx.destination);
-        clickOsc.start(now + t);
-        clickOsc.stop(now + t + 0.07);
-        activeSoundNodes.push(clickOsc, clickGain);
-
-        // Metalik yankı sekmesi
-        const echoOsc = audioCtx.createOscillator();
-        const echoGain = audioCtx.createGain();
-        echoOsc.type = 'sine';
-        echoOsc.frequency.setValueAtTime(420, now + t + 0.03);
-        echoOsc.frequency.exponentialRampToValueAtTime(80, now + t + 0.08);
-        echoGain.gain.setValueAtTime(0.4, now + t + 0.03);
-        echoGain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.09);
-        echoOsc.connect(echoGain);
-        echoGain.connect(audioCtx.destination);
-        echoOsc.start(now + t + 0.03);
-        echoOsc.stop(now + t + 0.1);
-        activeSoundNodes.push(echoOsc, echoGain);
+    // Kart rozetlerini güncelle
+    soundItems.forEach(item => {
+      const key = item.getAttribute('data-sound');
+      const badge = item.querySelector('.sound-play-badge');
+      if (key === type) {
+        item.classList.add('playing');
+        if (badge) badge.textContent = '⏹️ Durdur';
+      } else {
+        item.classList.remove('playing');
+        if (badge) badge.textContent = '🔊 Dinle';
       }
-    } else if (type === 'alternator') {
-      // Şarj dinamosu ıslığı: Gaz pedalına basıldıkça artan frekans vınlaması
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'sawtooth';
-      gain.gain.setValueAtTime(0.18, now);
+    });
 
-      // Frekans yükselip iniyor (rölantiden gaza basma simülasyonu)
-      osc.frequency.setValueAtTime(650, now);
-      osc.frequency.linearRampToValueAtTime(1850, now + 2.0);
-      osc.frequency.linearRampToValueAtTime(2400, now + 3.2);
-      osc.frequency.linearRampToValueAtTime(800, now + 5.5);
+    const now = ctx.currentTime + 0.05; // 50ms emniyet tamponu ile zaman kaymasını engelle
 
-      const filter = audioCtx.createBiquadFilter();
-      filter.type = 'bandpass';
-      filter.frequency.setValueAtTime(1400, now);
-      filter.Q.value = 4;
+    try {
+      if (type === 'starter') {
+        // 1. MARŞ MOTORU & AKÜ: Zayıf akü / Marş otomatiği tık-tık vuruntusu
+        // Ağır solenoid vuruntusu + metalik şasi sekmesi (0.32s periyot)
+        const duration = 5.0;
+        for (let t = 0; t < duration; t += 0.32) {
+          const time = now + t;
 
-      osc.connect(filter);
-      filter.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start(now);
-      osc.stop(now + 6.0);
-      activeSoundNodes.push(osc, gain, filter);
-    } else if (type === 'relay') {
-      // Torpido altı BCM röle seri tıkırtısı (12 Hz)
-      const duration = 5.0;
-      for (let t = 0; t < duration; t += 0.09) {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'square';
-        osc.frequency.setValueAtTime(800, now + t);
-        osc.frequency.exponentialRampToValueAtTime(200, now + t + 0.02);
-        gain.gain.setValueAtTime(0.3, now + t);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.025);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(now + t);
-        osc.stop(now + t + 0.03);
-        activeSoundNodes.push(osc, gain);
+          // Solenoid manyetik darbesi (130Hz -> 35Hz hızlı çöküş)
+          const lowOsc = ctx.createOscillator();
+          const lowGain = ctx.createGain();
+          lowOsc.type = 'triangle';
+          lowOsc.frequency.setValueAtTime(130, time);
+          lowOsc.frequency.exponentialRampToValueAtTime(35, time + 0.05);
+          lowGain.gain.setValueAtTime(0.85, time);
+          lowGain.gain.linearRampToValueAtTime(0.001, time + 0.06);
+
+          lowOsc.connect(lowGain);
+          lowGain.connect(masterGain);
+          lowOsc.start(time);
+          lowOsc.stop(time + 0.07);
+          activeSoundNodes.push(lowOsc, lowGain);
+
+          // Metalik kontak sekmesi
+          const snapOsc = ctx.createOscillator();
+          const snapGain = ctx.createGain();
+          snapOsc.type = 'sawtooth';
+          snapOsc.frequency.setValueAtTime(750, time + 0.025);
+          snapOsc.frequency.exponentialRampToValueAtTime(180, time + 0.065);
+          snapGain.gain.setValueAtTime(0.45, time + 0.025);
+          snapGain.gain.linearRampToValueAtTime(0.001, time + 0.07);
+
+          snapOsc.connect(snapGain);
+          snapGain.connect(masterGain);
+          snapOsc.start(time + 0.025);
+          snapOsc.stop(time + 0.08);
+          activeSoundNodes.push(snapOsc, snapGain);
+        }
+      } else if (type === 'alternator') {
+        // 2. ŞARJ DİNAMOSU (ALTERNATÖR): Diyot köprüsü sızıntısı & gaz verdikçe yükselen vınlama
+        const osc = ctx.createOscillator();
+        const oscSub = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
+
+        osc.type = 'sawtooth';
+        oscSub.type = 'triangle';
+
+        // Devir simülasyonu: rölanti 720Hz -> gaz basıldıkça 2450Hz -> rölantiye iniş
+        osc.frequency.setValueAtTime(720, now);
+        osc.frequency.linearRampToValueAtTime(1600, now + 1.8);
+        osc.frequency.linearRampToValueAtTime(2450, now + 3.2);
+        osc.frequency.linearRampToValueAtTime(850, now + 5.2);
+
+        oscSub.frequency.setValueAtTime(360, now);
+        oscSub.frequency.linearRampToValueAtTime(800, now + 1.8);
+        oscSub.frequency.linearRampToValueAtTime(1225, now + 3.2);
+        oscSub.frequency.linearRampToValueAtTime(425, now + 5.2);
+
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(1500, now);
+        filter.frequency.linearRampToValueAtTime(2200, now + 3.2);
+        filter.Q.value = 3.5;
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.35, now + 0.2);
+        gain.gain.setValueAtTime(0.35, now + 5.0);
+        gain.gain.linearRampToValueAtTime(0.001, now + 5.5);
+
+        osc.connect(filter);
+        oscSub.connect(filter);
+        filter.connect(gain);
+        gain.connect(masterGain);
+
+        osc.start(now);
+        oscSub.start(now);
+        osc.stop(now + 5.5);
+        oscSub.stop(now + 5.5);
+        activeSoundNodes.push(osc, oscSub, filter, gain);
+      } else if (type === 'relay') {
+        // 3. BCM & SİGORTA KUTUSU: Torpido altı ark yapan mini PCB röle tıkırtısı (12 Hz)
+        const duration = 5.0;
+        for (let t = 0; t < duration; t += 0.082) {
+          const time = now + t;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          const filter = ctx.createBiquadFilter();
+
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(900, time);
+          osc.frequency.exponentialRampToValueAtTime(220, time + 0.02);
+
+          filter.type = 'highpass';
+          filter.frequency.setValueAtTime(450, time);
+
+          gain.gain.setValueAtTime(0.42, time);
+          gain.gain.linearRampToValueAtTime(0.001, time + 0.022);
+
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(masterGain);
+
+          osc.start(time);
+          osc.stop(time + 0.025);
+          activeSoundNodes.push(osc, filter, gain);
+        }
+      } else if (type === 'misfire') {
+        // 4. ATEŞLEME & BEYİN: Sabah ilk marşta enjektör/bobin teklemesi, vuruntulu motor sarsıntısı
+        const duration = 5.2;
+        let stroke = 0;
+        for (let t = 0; t < duration; t += 0.14) {
+          stroke++;
+          const isMisfireStroke = (stroke % 4 === 0);
+          const time = now + t;
+
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+
+          if (isMisfireStroke) {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(42, time);
+            osc.frequency.exponentialRampToValueAtTime(20, time + 0.09);
+            gain.gain.setValueAtTime(0.75, time);
+            gain.gain.linearRampToValueAtTime(0.001, time + 0.12);
+          } else {
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(65, time);
+            osc.frequency.exponentialRampToValueAtTime(30, time + 0.06);
+            gain.gain.setValueAtTime(0.5, time);
+            gain.gain.linearRampToValueAtTime(0.001, time + 0.08);
+          }
+
+          osc.connect(gain);
+          gain.connect(masterGain);
+          osc.start(time);
+          osc.stop(time + 0.13);
+          activeSoundNodes.push(osc, gain);
+        }
+      } else if (type === 'cluster') {
+        // 5. GÖSTERGE & CAN-BUS: Gösterge saati CAN-Bus çökmesi & çift ikaz bipi
+        const duration = 5.0;
+        for (let t = 0; t < duration; t += 1.3) {
+          const time = now + t;
+
+          // Mikro CAN sinyal çökme darbesi
+          const glitchOsc = ctx.createOscillator();
+          const glitchGain = ctx.createGain();
+          glitchOsc.type = 'sawtooth';
+          glitchOsc.frequency.setValueAtTime(2400, time);
+          glitchGain.gain.setValueAtTime(0.2, time);
+          glitchGain.gain.linearRampToValueAtTime(0.001, time + 0.015);
+          glitchOsc.connect(glitchGain);
+          glitchGain.connect(masterGain);
+          glitchOsc.start(time);
+          glitchOsc.stop(time + 0.02);
+          activeSoundNodes.push(glitchOsc, glitchGain);
+
+          // İkaz Bipi 1 (Yüksek Ton 1180 Hz)
+          const beepOsc1 = ctx.createOscillator();
+          const beepGain1 = ctx.createGain();
+          beepOsc1.type = 'sine';
+          beepOsc1.frequency.setValueAtTime(1180, time + 0.02);
+          beepGain1.gain.setValueAtTime(0.001, time + 0.02);
+          beepGain1.gain.linearRampToValueAtTime(0.4, time + 0.035);
+          beepGain1.gain.linearRampToValueAtTime(0.001, time + 0.16);
+          beepOsc1.connect(beepGain1);
+          beepGain1.connect(masterGain);
+          beepOsc1.start(time + 0.02);
+          beepOsc1.stop(time + 0.17);
+          activeSoundNodes.push(beepOsc1, beepGain1);
+
+          // İkaz Bipi 2 (Düşük Ton 880 Hz)
+          const beepOsc2 = ctx.createOscillator();
+          const beepGain2 = ctx.createGain();
+          beepOsc2.type = 'sine';
+          beepOsc2.frequency.setValueAtTime(880, time + 0.18);
+          beepGain2.gain.setValueAtTime(0.001, time + 0.18);
+          beepGain2.gain.linearRampToValueAtTime(0.35, time + 0.195);
+          beepGain2.gain.linearRampToValueAtTime(0.001, time + 0.34);
+          beepOsc2.connect(beepGain2);
+          beepGain2.connect(masterGain);
+          beepOsc2.start(time + 0.18);
+          beepOsc2.stop(time + 0.35);
+          activeSoundNodes.push(beepOsc2, beepGain2);
+        }
       }
-    } else if (type === 'misfire') {
-      // Silkeleme / Vuruntu / Tekleme: Düşük frekanslı sarsıntılı darbe
-      const duration = 5.5;
-      for (let t = 0; t < duration; t += 0.18) {
-        const isSkip = (Math.sin(t * 8) > 0.4); // Rastgele ateşleme atlama
-        if (isSkip) continue;
-
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(55, now + t);
-        osc.frequency.exponentialRampToValueAtTime(25, now + t + 0.08);
-        gain.gain.setValueAtTime(0.7, now + t);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.1);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(now + t);
-        osc.stop(now + t + 0.11);
-        activeSoundNodes.push(osc, gain);
-      }
-    } else if (type === 'cluster') {
-      // Gösterge paneli kararması & CAN-Bus kesinti mikro bipi
-      const duration = 5.0;
-      for (let t = 0; t < duration; t += 1.2) {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(1150, now + t);
-        gain.gain.setValueAtTime(0.35, now + t);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + t + 0.25);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(now + t);
-        osc.stop(now + t + 0.3);
-        activeSoundNodes.push(osc, gain);
-      }
+    } catch (err) {
+      console.error('Audio synthesis error:', err);
     }
 
     soundStopTimer = setTimeout(() => {
       stopAllSounds();
-    }, 6000);
+    }, 5600);
   }
 
-  let currentActiveSoundKey = 'starter';
+  function handleSoundItemSelect(soundKey, triggerSound = true) {
+    currentActiveSoundKey = soundKey;
+
+    soundItems.forEach(item => {
+      const isCurrent = (item.getAttribute('data-sound') === soundKey);
+      item.classList.toggle('active', isCurrent);
+    });
+
+    if (typeof updateSoundDetailPanel === 'function') {
+      updateSoundDetailPanel(soundKey);
+    }
+
+    if (triggerSound) {
+      // Eğer bu ses zaten çalıyorsa tıklandığında durdur, aksi halde bu sesi çal
+      if (isSoundPlaying && currentPlayingKey === soundKey) {
+        stopAllSounds();
+      } else {
+        playAcousticSimulation(soundKey);
+      }
+    }
+  }
+
   soundItems.forEach(item => {
     item.addEventListener('click', () => {
-      currentActiveSoundKey = item.getAttribute('data-sound') || 'starter';
-      if (isSoundPlaying) {
-        playAcousticSimulation(currentActiveSoundKey);
-      }
+      const soundKey = item.getAttribute('data-sound') || 'starter';
+      handleSoundItemSelect(soundKey, true);
     });
   });
 
