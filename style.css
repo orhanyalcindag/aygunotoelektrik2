@@ -3642,230 +3642,6 @@ h1, h2, h3, h4, h5, h6 {
   flex-shrink: 0;
 }
 
-/* ==========================================================================
-   NEW MODULE 2: SESLİ & BELİRTİ ODAKLI ARIZA REHBERİ (#sesli-rehber)
-   ========================================================================== */
-.sound-guide-section {
-  position: relative;
-  background: #060608;
-  border-bottom: 1px solid var(--border-dark);
-}
-
-.sound-guide-layout {
-  display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  gap: 28px;
-  margin-top: 36px;
-  align-items: start;
-}
-
-.sound-cards-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.sound-item {
-  background: var(--bg-card);
-  border: 1px solid var(--border-dark);
-  border-radius: var(--radius-md);
-  padding: 18px 20px;
-  text-align: left;
-  cursor: pointer;
-  transition: all var(--transition-normal);
-  width: 100%;
-  color: inherit;
-  font-family: inherit;
-  position: relative;
-}
-
-.sound-item:hover {
-  background: var(--bg-card-hover);
-  border-color: rgba(229, 9, 20, 0.35);
-  transform: translateX(4px);
-}
-
-.sound-item.active {
-  background: linear-gradient(135deg, rgba(26, 26, 32, 0.95) 0%, rgba(42, 14, 16, 0.95) 100%);
-  border-color: var(--red-primary);
-  box-shadow: 0 8px 25px rgba(229, 9, 20, 0.25);
-}
-
-.sound-item-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.sound-item-badge {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #f59e0b;
-  background: rgba(245, 158, 11, 0.12);
-  border: 1px solid rgba(245, 158, 11, 0.25);
-  padding: 3px 10px;
-  border-radius: 12px;
-  letter-spacing: 0.5px;
-}
-
-.sound-wave-mini {
-  display: flex;
-  align-items: flex-end;
-  gap: 3px;
-  height: 16px;
-}
-
-.sound-wave-mini span {
-  width: 3px;
-  height: 6px;
-  background: var(--text-muted);
-  border-radius: 2px;
-  transition: all var(--transition-fast);
-}
-
-.sound-item.active .sound-wave-mini span {
-  background: var(--red-primary);
-  animation: eqMini 1s ease-in-out infinite alternate;
-}
-
-.sound-item.active .sound-wave-mini span:nth-child(1) { animation-delay: 0.1s; height: 12px; }
-.sound-item.active .sound-wave-mini span:nth-child(2) { animation-delay: 0.3s; height: 16px; }
-.sound-item.active .sound-wave-mini span:nth-child(3) { animation-delay: 0.2s; height: 8px; }
-.sound-item.active .sound-wave-mini span:nth-child(4) { animation-delay: 0.4s; height: 14px; }
-
-@keyframes eqMini {
-  0% { transform: scaleY(0.4); }
-  100% { transform: scaleY(1); }
-}
-
-.sound-item h4 {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin-bottom: 6px;
-  line-height: 1.35;
-}
-
-.sound-item p {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  line-height: 1.45;
-  margin: 0;
-}
-
-/* Sound Diagnostic Detail Box */
-.sound-detail-box {
-  position: sticky;
-  top: 90px;
-}
-
-.sound-detail-card {
-  background: var(--bg-card-elevated);
-  border: 1px solid var(--border-red);
-  border-radius: var(--radius-lg);
-  padding: 28px 24px;
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7), var(--shadow-glow);
-}
-
-.sound-visualizer-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 16px;
-  margin-bottom: 20px;
-}
-
-.sound-live-indicator {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 800;
-  color: #10b981;
-}
-
-.sound-live-indicator .pulse-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 10px #10b981;
-  animation: pulse 1.5s infinite;
-}
-
-.equalizer-bars {
-  display: flex;
-  align-items: flex-end;
-  gap: 4px;
-  height: 28px;
-}
-
-.eq-bar {
-  width: 4px;
-  background: var(--red-primary);
-  border-radius: 2px;
-  animation: eqBounce 1.2s ease-in-out infinite alternate;
-}
-
-.eq-bar.bar-1 { height: 12px; animation-delay: 0.05s; }
-.eq-bar.bar-2 { height: 22px; animation-delay: 0.2s; }
-.eq-bar.bar-3 { height: 16px; animation-delay: 0.35s; }
-.eq-bar.bar-4 { height: 28px; animation-delay: 0.15s; }
-.eq-bar.bar-5 { height: 20px; animation-delay: 0.4s; }
-.eq-bar.bar-6 { height: 26px; animation-delay: 0.1s; }
-.eq-bar.bar-7 { height: 14px; animation-delay: 0.3s; }
-.eq-bar.bar-8 { height: 18px; animation-delay: 0.25s; }
-
-@keyframes eqBounce {
-  0% { transform: scaleY(0.25); background: #ff333d; }
-  50% { transform: scaleY(1); background: #e50914; }
-  100% { transform: scaleY(0.4); background: #990008; }
-}
-
-.sound-detail-body h3 {
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: #ffffff;
-  margin-bottom: 18px;
-  line-height: 1.35;
-}
-
-.sound-info-block {
-  margin-bottom: 16px;
-  padding: 14px 16px;
-  border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.03);
-  border-left: 3px solid #71717a;
-}
-
-.sound-info-block.highlight {
-  background: rgba(229, 9, 20, 0.08);
-  border-left: 3px solid var(--red-primary);
-}
-
-.sound-info-block h5 {
-  font-size: 0.82rem;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: 6px;
-  letter-spacing: 0.5px;
-  font-weight: 700;
-}
-
-.sound-info-block p {
-  font-size: 0.92rem;
-  color: #e4e4e7;
-  line-height: 1.55;
-  margin: 0;
-}
-
-.sound-detail-footer {
-  margin-top: 20px;
-}
 
 /* ==========================================================================
    NEW MODULE 3: OBD-II ARIZA KODU (DTC) CANLI ARAMA MOTORU (#dtc-lookup)
@@ -4415,13 +4191,6 @@ h1, h2, h3, h4, h5, h6 {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .sound-guide-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .sound-detail-box {
-    position: static;
-  }
 }
 
 @media (max-width: 768px) {
@@ -4477,13 +4246,6 @@ h1, h2, h3, h4, h5, h6 {
     gap: 10px;
   }
 
-  .sound-item {
-    padding: 14px 16px;
-  }
-
-  .sound-detail-card {
-    padding: 20px 16px;
-  }
 
   .dtc-search-bar {
     padding: 8px 16px;
@@ -4527,10 +4289,7 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-@media (max-width: 360px) {
-  .sound-item h4 {
-    font-size: 0.98rem;
-  }
+
 
   .dtc-code-badge {
     font-size: 1rem;
@@ -4953,96 +4712,7 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--red-bright);
 }
 
-/* ==========================================================================
-   19. SES SİMÜLATÖRÜ (WEB AUDIO) STILLERI
-   ========================================================================== */
-.sound-play-badge {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--red-bright);
-  background: rgba(229, 9, 20, 0.15);
-  border: 1px solid var(--border-red);
-  padding: 2px 8px;
-  border-radius: 12px;
-  margin-left: auto;
-  transition: all var(--transition-fast);
-}
 
-.sound-item.playing {
-  border-color: var(--red-bright) !important;
-  box-shadow: 0 0 25px rgba(229, 9, 20, 0.4) !important;
-}
-
-.sound-item.playing .sound-play-badge {
-  background: var(--red-primary) !important;
-  color: #ffffff !important;
-  border-color: #ff4d4d !important;
-  box-shadow: 0 0 12px rgba(229, 9, 20, 0.6);
-  animation: pulseGlow 1.2s infinite;
-}
-
-.sound-player-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid var(--border-dark);
-  border-radius: var(--radius-md);
-  padding: 10px 16px;
-  margin-bottom: 20px;
-}
-
-.btn-sound-play-toggle {
-  background: linear-gradient(135deg, rgba(229, 9, 20, 0.2), rgba(153, 0, 8, 0.3));
-  border: 1px solid var(--red-primary);
-  color: #fff;
-  border-radius: var(--radius-sm);
-  padding: 8px 14px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  transition: var(--transition-fast);
-}
-
-.btn-sound-play-toggle:hover {
-  background: var(--red-primary);
-  box-shadow: 0 0 15px rgba(229, 9, 20, 0.5);
-}
-
-.btn-sound-play-toggle.playing {
-  background: #10b981;
-  border-color: #10b981;
-  box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
-}
-
-.sound-playback-status {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  font-family: var(--font-mono);
-  letter-spacing: 0.5px;
-}
-
-.equalizer-bars.animating .eq-bar {
-  animation: eqPulse 0.4s infinite ease-in-out alternate;
-}
-
-.equalizer-bars.animating .bar-1 { animation-delay: 0.05s; }
-.equalizer-bars.animating .bar-2 { animation-delay: 0.2s; }
-.equalizer-bars.animating .bar-3 { animation-delay: 0.1s; }
-.equalizer-bars.animating .bar-4 { animation-delay: 0.3s; }
-.equalizer-bars.animating .bar-5 { animation-delay: 0.15s; }
-.equalizer-bars.animating .bar-6 { animation-delay: 0.25s; }
-.equalizer-bars.animating .bar-7 { animation-delay: 0.1s; }
-.equalizer-bars.animating .bar-8 { animation-delay: 0.35s; }
-
-@keyframes eqPulse {
-  0% { height: 4px; }
-  100% { height: 26px; }
-}
 
 /* ==========================================================================
    20. OTO HESAPLAYICI (KLİMA GAZI & AKÜ VOLTAJI) STILLERI
